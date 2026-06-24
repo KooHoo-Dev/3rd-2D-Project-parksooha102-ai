@@ -6,8 +6,23 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/00. Study/03. Card Selector/03. CardSelector.unity
+    guid: 7927aefa1ad931f4d9af76321a2af458
+  - enabled: 1
+    path: Assets/00. Study/06. UFO Game/UFO Game.unity
+    guid: 2035d976bb702704fa0e31bab21c5437
+  - enabled: 1
+    path: Assets/00. Study/07. 2D Primitive And Vector/2D Primitive And Vector.unity
+    guid: e0837c3c5744a824fb218c1b96bb7983
+  - enabled: 1
+    path: Assets/00. Study/08. Merge Game/MergeGame.unity
+    guid: bfe1ca7cb95fc61488fc0f072959b867
+  - enabled: 1
+    path: Assets/00. Study/MineSweeper/MineSweeper.unity
+    guid: 02758efb2d7d876479fd9941fcebd26a
+  - enabled: 1
+    path: Assets/00. Study/13. Scene Management/Scene Management.unity
+    guid: fa32de7c878ee6f4faebc1ae872586ac
   m_configObjects:
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
