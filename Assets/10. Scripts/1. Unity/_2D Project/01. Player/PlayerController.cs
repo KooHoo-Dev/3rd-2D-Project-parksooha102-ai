@@ -7,12 +7,17 @@ namespace _2DProject
     {
         [field: SerializeField] private Transform AimPoint;
         [field: SerializeField] private Transform PlayerPosition;
+        [field: SerializeField] public Bullet bullet { get; private set; }
+
+        static public ComponentPool<Bullet> bulletPool { get; set; }
 
         private TopDownCharactorController Controller { get; set; }
+        public Transform PoolRoot;
 
         private void Awake()
         {
             Controller = GetComponent<TopDownCharactorController>();
+            bulletPool = new ComponentPool<Bullet>(bullet, PoolRoot);
 
         }
 
@@ -42,7 +47,7 @@ namespace _2DProject
             {
                 Debug.Log("fire");
                 Vector3 direction = PlayerPosition.up;
-                Bullet bullet = BulletPool.bulletPool.Get();
+                Bullet bullet = bulletPool.Get();
                 bullet.transform.up = direction;
                 bullet.Set(50);
                 bullet.Fire();

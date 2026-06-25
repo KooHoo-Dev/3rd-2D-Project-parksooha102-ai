@@ -1,6 +1,6 @@
 ﻿using Study.Utilities;
 using UnityEngine;
-
+/*
 namespace _2DProject
 {
     public class BulletPool : MonoBehaviour
@@ -15,4 +15,4 @@ namespace _2DProject
         }
     }
 
-}
+}*/

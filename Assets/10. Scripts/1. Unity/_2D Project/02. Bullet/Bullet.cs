@@ -21,10 +21,9 @@ namespace _2DProject
         // Bullet 객체를 초기화합니다
         public void Set(int damage)
         {
-            transform.SetParent(Owner.transform);
             isFired = false;
             gameObject.SetActive(true);
-            transform.localPosition = startLocalPosition;
+            transform.localPosition = startLocalPosition + Owner.transform.position;
             Damage = damage;
         }
 
@@ -32,7 +31,6 @@ namespace _2DProject
         {
             gameObject.SetActive(true);
             isFired = true;
-            transform.SetParent(null);
         }
 
         private void Update()
@@ -45,7 +43,7 @@ namespace _2DProject
 
         protected virtual void OnTriggerEnter2D(Collider2D collision)
         {
-            if (collision.gameObject.CompareTag("opponentTag"))
+            if (collision.gameObject.CompareTag(opponentTag))
             {
                 // 전투 이벤트 처리로직이 들어가야하나 진도상 생략
                 gameObject.SetActive(false);
