@@ -365,7 +365,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 997035458}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3608d09f48a68f4e995e881b62226bb, type: 3}
+  m_Script: {fileID: 11500000, guid: c3cd51cb97b04074fbeaae20ada0a4fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_2DProject.AimPoint
 --- !u!1 &1131183046

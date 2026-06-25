@@ -10,7 +10,7 @@ namespace _2DProject
         public LayerMask collisionLayer;
 
         private Rigidbody2D rBody;
-        private Collider2D col;
+        private CircleCollider2D col;
 
         private Vector3 externalDelta = Vector3.zero;
         private Vector3 moveInput = new Vector3();
@@ -20,9 +20,9 @@ namespace _2DProject
         private void Awake()
         {
             rBody = GetComponent<Rigidbody2D>();
-            rBody.bodyType = RigidbodyType2D.Kinematic;
+            // rBody.bodyType = RigidbodyType2D.Kinematic;
 
-            col = GetComponent<Collider2D>();
+            col = GetComponent<CircleCollider2D>();
         }
 
         private void FixedUpdate()
@@ -32,8 +32,9 @@ namespace _2DProject
             externalDelta = Vector3.zero;
 
             Vector3 moveVector = Vector3.zero;
-            moveVector.x = ResolveAxisMovement(desireMove.x, Vector3.right);
-            moveVector.y = ResolveAxisMovement(desireMove.y, Vector3.up);
+            // moveVector.x = ResolveAxisMovement(desireMove.x, Vector3.right);
+            // moveVector.y = ResolveAxisMovement(desireMove.y, Vector3.up);
+            moveVector = desireMove;
 
             rBody.MovePosition(transform.position + moveVector);
         }
@@ -59,6 +60,7 @@ namespace _2DProject
 
         #region Private Methods (운동 파이프라인)
 
+        /*
         private float ResolveAxisMovement(float move, Vector3 axis)
         {
             if (move == 0.0f) return 0.0f;
@@ -86,7 +88,25 @@ namespace _2DProject
             box.size = size;
 
             return box;
-        }
+        }*/
+        /*
+        private float ResolveAxisMovement(float move, Vector3 axis)
+        {
+            if (move == 0.0f) return 0.0f;
+
+            Vector3 dir = (move > 0.0f ? axis : -axis);
+            float distance = Mathf.Abs(move);
+
+            float castRadius = col.radius - skinWidth;
+
+            RaycastHit2D hit = Physics2D.CircleCast(transform.position, castRadius, dir, distance, collisionLayer);
+
+            if (hit.collider == null) return move;
+
+            float allowed = Mathf.Max(0, hit.distance - skinWidth);
+
+            return Mathf.Sign(move) * allowed;
+        }*/
 
         #endregion
 
