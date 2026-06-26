@@ -1,5 +1,6 @@
-using Study.Utilities;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace _2DProject
 {
@@ -17,6 +18,14 @@ namespace _2DProject
 
         private bool isFired = false;
         private int Damage;
+        private int wallLayer;
+
+        public bool isModuleA = false;
+        public bool isModuleB = false;
+        public bool isModuleC = false;
+        public bool isModuleD = false;
+        public bool isModuleE = false;
+        public bool isModuleF = false;
 
         // Bullet 객체를 초기화합니다
         public void Set(int damage)
@@ -33,19 +42,74 @@ namespace _2DProject
             isFired = true;
         }
 
+        void Start()
+        {
+            wallLayer = LayerMask.NameToLayer("Wall");
+        }
+
         private void Update()
         {
             if (isFired == false) return;
 
-            // 아래는 운동로직
+            if (isModuleB)
+            {
+                float searchRadius = 20;
+                Collider2D[] targets = Physics2D.OverlapCircleAll(transform.position, searchRadius);
+                Collider2D closestTarget = null;
+                float minDistance = Mathf.Infinity;
+
+                foreach (var target in targets)
+                {
+                    if (target.CompareTag(opponentTag))
+                    {
+                        float distance = (target.transform.position - transform.position).sqrMagnitude;
+                        Debug.Log($"{distance} 만큼 떨어져있는 적 발견!");
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            closestTarget = target;
+                        }
+                    }
+                }
+            }
+
             transform.Translate(moveVector * (speed * Time.deltaTime), Space.Self);
         }
 
-        protected virtual void OnTriggerEnter2D(Collider2D collision)
+        private void OnTriggerEnter2D(Collider2D collision)
         {
+            Debug.Log($"{collision.gameObject}에 충돌!");
+
             if (collision.gameObject.CompareTag(opponentTag))
             {
-                // 전투 이벤트 처리로직이 들어가야하나 진도상 생략
+                if (isModuleC)
+                {
+                    // 대충 폭발
+                }
+                if (isModuleD)
+                {
+                    // 대충 관통
+                }
+                if (isModuleE)
+                {
+                    // 대충 분열
+                }
+
+                gameObject.SetActive(false);
+            }
+
+            if (collision.gameObject.layer == wallLayer)
+            {
+                if (isModuleA)
+                {
+                    // 대충 반사
+                    Debug.Log($"벽에 충돌!");
+                }
+                if(isModuleC)
+                {
+                    // 대충 폭발
+                }
+
                 gameObject.SetActive(false);
             }
         }

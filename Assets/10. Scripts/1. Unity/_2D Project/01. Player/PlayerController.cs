@@ -7,18 +7,14 @@ namespace _2DProject
     {
         [field: SerializeField] private Transform AimPoint;
         [field: SerializeField] private Transform PlayerPosition;
+        [field: SerializeField] public BulletPool bulletPool;
         [field: SerializeField] public Bullet bullet { get; private set; }
 
-        static public ComponentPool<Bullet> bulletPool { get; set; }
-
         private TopDownCharactorController Controller { get; set; }
-        public Transform PoolRoot;
 
         private void Awake()
         {
             Controller = GetComponent<TopDownCharactorController>();
-            bulletPool = new ComponentPool<Bullet>(bullet, PoolRoot);
-
         }
 
         private void Update()
