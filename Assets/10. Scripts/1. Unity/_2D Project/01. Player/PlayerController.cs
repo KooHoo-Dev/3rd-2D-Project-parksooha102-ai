@@ -6,7 +6,7 @@ namespace _2DProject
     public class PlayerController : MonoBehaviour
     {
         [field: SerializeField] private Transform AimPoint;
-        [field: SerializeField] private Transform PlayerPosition;
+        [field: SerializeField] private Transform Muzzle;
         [field: SerializeField] public BulletPool bulletPool;
         [field: SerializeField] public Bullet bullet { get; private set; }
 
@@ -28,10 +28,10 @@ namespace _2DProject
         {
             Vector3 goalPosition = AimPoint.position;
 
-            Vector3 myPosition = PlayerPosition.position;
+            Vector3 myPosition = transform.position;
 
             Vector3 dir = (goalPosition - myPosition).normalized;
-            PlayerPosition.up = dir;
+            transform.up = dir;
 
             Vector2 inputVector = SimpleInput.GetMoveAxisRaw();
             Controller.SetMoveInput(inputVector);
@@ -42,10 +42,8 @@ namespace _2DProject
             if (SimpleInput.GetMouseButtonDown(0))
             {
                 Debug.Log("fire");
-                Vector3 direction = PlayerPosition.up;
                 Bullet bullet = bulletPool.Get();
-                bullet.transform.up = direction;
-                bullet.Set(50);
+                bullet.Set(Muzzle.position, transform.up, 50);
                 bullet.Fire();
             }
         }

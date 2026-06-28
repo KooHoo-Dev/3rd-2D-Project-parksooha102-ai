@@ -1,24 +1,17 @@
-using Unity.VisualScripting;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace _2DProject
 {
     public class Bullet : MonoBehaviour
     {
-        // 1. 특정 방향으로 운동
-        // 2. 적과 충돌하면 데미지를 줌(전투이벤트 생성 후 전달)
-        // 3. 재사용 가능해야함
-
-        [SerializeField] private GameObject Owner;
-        [SerializeField] private Vector3 startLocalPosition;
-        [SerializeField] private Vector3 moveVector = Vector3.up;
         [SerializeField] private float speed = 1.0f;
         [SerializeField] private string opponentTag;
+        [SerializeField] private string allyTag;
+        [SerializeField] private LayerMask wallLayer;
 
-        private bool isFired = false;
-        private int Damage;
-        private int wallLayer;
+        private bool isFired;
+        private int damage;
 
         public bool isModuleA = false;
         public bool isModuleB = false;
@@ -27,13 +20,34 @@ namespace _2DProject
         public bool isModuleE = false;
         public bool isModuleF = false;
 
-        // Bullet 객체를 초기화합니다
-        public void Set(int damage)
+        [Header("ModuleA")]
+
+        [SerializeField] private int maxRicochetCount = 3;
+        private int currentRicochetCount;
+
+        [Header("ModuleB")]
+
+        [SerializeField] private float trackingRange = 10f;
+        [SerializeField] private float trackingAngle = 45f;
+        [SerializeField] private float trackingSpeed = 4f;
+
+        [Header("ModuleD")]
+
+        [SerializeField] private int maxPenetrateCount = 3;
+
+        private HashSet<GameObject> checkList = new HashSet<GameObject>();
+        private int currentPenetrateCount;
+
+        public void Set(Vector3 spawnPosition, Vector3 direction, int damage)
         {
             isFired = false;
             gameObject.SetActive(true);
-            transform.localPosition = startLocalPosition + Owner.transform.position;
-            Damage = damage;
+            transform.position = spawnPosition;
+            transform.up = direction;
+            this.damage = damage;
+
+            ModuleAReset();
+            ModuleDReset();
         }
 
         public void Fire()
@@ -44,75 +58,192 @@ namespace _2DProject
 
         void Start()
         {
-            wallLayer = LayerMask.NameToLayer("Wall");
         }
 
         private void Update()
         {
-            if (isFired == false) return;
+            if (isFired == false)
+                return;
 
             if (isModuleB)
-            {
-                float searchRadius = 20;
-                Collider2D[] targets = Physics2D.OverlapCircleAll(transform.position, searchRadius);
-                Collider2D closestTarget = null;
-                float minDistance = Mathf.Infinity;
+                UpdateTracking();
 
-                foreach (var target in targets)
-                {
-                    if (target.CompareTag(opponentTag))
-                    {
-                        float distance = (target.transform.position - transform.position).sqrMagnitude;
-                        Debug.Log($"{distance} 만큼 떨어져있는 적 발견!");
-                        if (distance < minDistance)
-                        {
-                            minDistance = distance;
-                            closestTarget = target;
-                        }
-                    }
-                }
-            }
-
-            transform.Translate(moveVector * (speed * Time.deltaTime), Space.Self);
+            MoveBullet();
         }
 
-        private void OnTriggerEnter2D(Collider2D collision)
+        private void MoveBullet()
         {
-            Debug.Log($"{collision.gameObject}에 충돌!");
+            float moveDistance = speed * Time.deltaTime;
 
-            if (collision.gameObject.CompareTag(opponentTag))
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.up, moveDistance);
+
+            if (hit.collider != null && hit.collider.gameObject.CompareTag(allyTag) == false)
             {
-                if (isModuleC)
-                {
-                    // 대충 폭발
-                }
-                if (isModuleD)
-                {
-                    // 대충 관통
-                }
-                if (isModuleE)
-                {
-                    // 대충 분열
-                }
-
-                gameObject.SetActive(false);
+                ProcessHit(hit);
+                return;
             }
 
-            if (collision.gameObject.layer == wallLayer)
-            {
-                if (isModuleA)
-                {
-                    // 대충 반사
-                    Debug.Log($"벽에 충돌!");
-                }
-                if(isModuleC)
-                {
-                    // 대충 폭발
-                }
+            transform.position += transform.up * moveDistance;
+        }
 
-                gameObject.SetActive(false);
+        private void ProcessHit(RaycastHit2D hit)
+        {
+            GameObject target = hit.collider.gameObject;
+
+            // 적 충돌
+            if (target.CompareTag(opponentTag))
+            {
+                ProcessEnemyHit(hit);
+                return;
+            }
+
+            // 벽 충돌
+            if (wallLayer.Contains(target))
+            {
+                ProcessWallHit(hit);
+                return;
             }
         }
+
+        private void ProcessEnemyHit(RaycastHit2D hit)
+        {
+            if (isModuleC)
+            {
+                // 대충 폭발
+            }
+
+            if (isModuleD)
+            {
+                ProcessPenetrate(hit);
+                return;
+            }
+
+            if (isModuleE)
+            {
+                // 대충 분열
+            }
+
+            gameObject.SetActive(false);
+        }
+
+        private void ProcessWallHit(RaycastHit2D hit)
+        {
+            if (isModuleA)
+            {
+                ProcessRicochet(hit);
+                return;
+            }
+
+            if (isModuleC)
+            {
+                // 대충 폭발
+            }
+
+            gameObject.SetActive(false);
+        }
+
+        #region ModuleA
+
+        private void ModuleAReset()
+        {
+            currentRicochetCount = maxRicochetCount;
+        }
+
+        private void ProcessRicochet(RaycastHit2D hit)
+        {
+            currentRicochetCount--;
+
+            if (currentRicochetCount < 0)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+
+            transform.position = hit.point + hit.normal * 0.01f;
+
+            Vector3 reflected = Vector3.Reflect(transform.up, hit.normal);
+
+            transform.up = reflected;
+        }
+
+        #endregion
+
+        #region ModuleB
+
+        private void UpdateTracking()
+        {
+            GameObject target = null;
+
+            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, trackingRange);
+
+            float nearestSqr = trackingRange * trackingRange;
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                if (hits[i].CompareTag(opponentTag) == false)
+                    continue;
+
+                Vector3 preTargetDir = hits[i].transform.position - transform.position;
+                float distanceSqr = preTargetDir.sqrMagnitude;
+
+                if (distanceSqr >= nearestSqr)
+                    continue;
+
+                if (Vector3.Angle(transform.up, preTargetDir) > trackingAngle)
+                    continue;
+
+                float distance = Mathf.Sqrt(distanceSqr);
+
+                bool isBlocked;
+
+                isBlocked = Physics2D.Linecast(transform.position, hits[i].transform.position, wallLayer);
+
+                if (isBlocked)
+                    continue;
+
+                nearestSqr = distanceSqr;
+                target = hits[i].gameObject;
+            }
+
+            if (target != null)
+            {
+                Vector3 targetDir = (target.transform.position - transform.position);
+                targetDir = targetDir.normalized;
+
+                transform.up = Vector3.RotateTowards(transform.up, targetDir, trackingSpeed * Time.deltaTime, 0.0f);
+            }
+        }
+
+        #endregion
+
+        #region ModuleD
+        private void ModuleDReset()
+        {
+            currentPenetrateCount = maxPenetrateCount;
+            checkList.Clear();
+        }
+
+        private void ProcessPenetrate(RaycastHit2D hit)
+        {
+            if (currentPenetrateCount < 0)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+
+            GameObject hitObject = hit.collider.gameObject;
+
+            if (hitObject == null) 
+                return;
+
+            if (checkList.Contains(hitObject)) 
+                return;
+
+            checkList.Add(hitObject);
+            currentPenetrateCount--;
+        }
+
+        #endregion
 
     }
 }
