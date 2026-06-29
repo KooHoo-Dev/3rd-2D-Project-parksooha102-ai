@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 
 namespace _2DProject
@@ -6,48 +7,30 @@ namespace _2DProject
     public class Bullet : MonoBehaviour
     {
         [SerializeField] private float speed = 1.0f;
-        [SerializeField] private string opponentTag;
-        [SerializeField] private string allyTag;
-        [SerializeField] private LayerMask wallLayer;
+        [field: SerializeField] public string OpponentTag {  get; private set; }
+        [field: SerializeField] public string AllyTag { get; private set; }
+        [field: SerializeField] public LayerMask WallLayer { get; private set; }
+        [field: SerializeField] public BulletPool BulletPool { get; private set; }
 
         private bool isFired;
-        private int damage;
+        public int damage {  get; private set; }
+        public int genaration { get; private set; }
 
-        public bool isModuleA = false;
-        public bool isModuleB = false;
-        public bool isModuleC = false;
-        public bool isModuleD = false;
-        public bool isModuleE = false;
-        public bool isModuleF = false;
+        private List<IBulletModule> modules = new();
 
-        [Header("ModuleA")]
-
-        [SerializeField] private int maxRicochetCount = 3;
-        private int currentRicochetCount;
-
-        [Header("ModuleB")]
-
-        [SerializeField] private float trackingRange = 10f;
-        [SerializeField] private float trackingAngle = 45f;
-        [SerializeField] private float trackingSpeed = 4f;
-
-        [Header("ModuleD")]
-
-        [SerializeField] private int maxPenetrateCount = 3;
-
-        private HashSet<GameObject> checkList = new HashSet<GameObject>();
-        private int currentPenetrateCount;
-
-        public void Set(Vector3 spawnPosition, Vector3 direction, int damage)
+        public void Set(Vector3 spawnPosition, Vector3 direction, int damage, int genaration)
         {
             isFired = false;
             gameObject.SetActive(true);
             transform.position = spawnPosition;
             transform.up = direction;
             this.damage = damage;
+            this.genaration = genaration;
 
-            ModuleAReset();
-            ModuleDReset();
+            foreach (IBulletModule m in modules)
+            {
+                m.OnInit(this);
+            }
         }
 
         public void Fire()
@@ -55,9 +38,14 @@ namespace _2DProject
             gameObject.SetActive(true);
             isFired = true;
         }
-
-        void Start()
+        private void Start()
         {
+            AddModule(new ModuleA());
+            //AddModule(new ModuleB());
+            //AddModule(new ModuleC());
+            AddModule(new ModuleD());
+            AddModule(new ModuleE());
+            //AddModule(new ModuleF());
         }
 
         private void Update()
@@ -65,8 +53,8 @@ namespace _2DProject
             if (isFired == false)
                 return;
 
-            if (isModuleB)
-                UpdateTracking();
+            foreach (IBulletModule m in modules)
+                m.OnUpdate();
 
             MoveBullet();
         }
@@ -74,31 +62,30 @@ namespace _2DProject
         private void MoveBullet()
         {
             float moveDistance = speed * Time.deltaTime;
-
             RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.up, moveDistance);
 
-            if (hit.collider != null && hit.collider.gameObject.CompareTag(allyTag) == false)
+            if (hit.collider != null && !hit.collider.CompareTag(AllyTag))
             {
                 ProcessHit(hit);
-                return;
             }
 
-            transform.position += transform.up * moveDistance;
+            if (gameObject.activeSelf)
+            {
+                transform.position += transform.up * moveDistance;
+            }
         }
 
         private void ProcessHit(RaycastHit2D hit)
         {
             GameObject target = hit.collider.gameObject;
 
-            // 적 충돌
-            if (target.CompareTag(opponentTag))
+            if (target.CompareTag(OpponentTag))
             {
                 ProcessEnemyHit(hit);
                 return;
             }
 
-            // 벽 충돌
-            if (wallLayer.Contains(target))
+            if (WallLayer.Contains(target))
             {
                 ProcessWallHit(hit);
                 return;
@@ -107,143 +94,45 @@ namespace _2DProject
 
         private void ProcessEnemyHit(RaycastHit2D hit)
         {
-            if (isModuleC)
+            bool canSurvive = false;
+
+            foreach (IBulletModule m in modules)
             {
-                // 대충 폭발
+                if (m.OnHitEnemy(hit))
+                    canSurvive = true;
             }
 
-            if (isModuleD)
-            {
-                ProcessPenetrate(hit);
-                return;
-            }
-
-            if (isModuleE)
-            {
-                // 대충 분열
-            }
-
-            gameObject.SetActive(false);
+            if (canSurvive == false)
+                Kill();
         }
 
         private void ProcessWallHit(RaycastHit2D hit)
         {
-            if (isModuleA)
+            bool canSurvive = false;
+
+            foreach (IBulletModule m in modules)
             {
-                ProcessRicochet(hit);
-                return;
+                if (m.OnHitWall(hit))
+                    canSurvive = true;
             }
 
-            if (isModuleC)
-            {
-                // 대충 폭발
-            }
+            if (canSurvive == false)
+                Kill();
+        }
 
+        public void Kill()
+        {
             gameObject.SetActive(false);
         }
 
-        #region ModuleA
-
-        private void ModuleAReset()
+        public void AddModule(IBulletModule module)
         {
-            currentRicochetCount = maxRicochetCount;
-        }
-
-        private void ProcessRicochet(RaycastHit2D hit)
-        {
-            currentRicochetCount--;
-
-            if (currentRicochetCount < 0)
+            if (modules.Contains(module) == false)
             {
-                gameObject.SetActive(false);
-                return;
-            }
-
-            transform.position = hit.point + hit.normal * 0.01f;
-
-            Vector3 reflected = Vector3.Reflect(transform.up, hit.normal);
-
-            transform.up = reflected;
-        }
-
-        #endregion
-
-        #region ModuleB
-
-        private void UpdateTracking()
-        {
-            GameObject target = null;
-
-            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, trackingRange);
-
-            float nearestSqr = trackingRange * trackingRange;
-
-            for (int i = 0; i < hits.Length; i++)
-            {
-                if (hits[i].CompareTag(opponentTag) == false)
-                    continue;
-
-                Vector3 preTargetDir = hits[i].transform.position - transform.position;
-                float distanceSqr = preTargetDir.sqrMagnitude;
-
-                if (distanceSqr >= nearestSqr)
-                    continue;
-
-                if (Vector3.Angle(transform.up, preTargetDir) > trackingAngle)
-                    continue;
-
-                float distance = Mathf.Sqrt(distanceSqr);
-
-                bool isBlocked;
-
-                isBlocked = Physics2D.Linecast(transform.position, hits[i].transform.position, wallLayer);
-
-                if (isBlocked)
-                    continue;
-
-                nearestSqr = distanceSqr;
-                target = hits[i].gameObject;
-            }
-
-            if (target != null)
-            {
-                Vector3 targetDir = (target.transform.position - transform.position);
-                targetDir = targetDir.normalized;
-
-                transform.up = Vector3.RotateTowards(transform.up, targetDir, trackingSpeed * Time.deltaTime, 0.0f);
+                modules.Add(module);
+                module.OnInit(this);
             }
         }
-
-        #endregion
-
-        #region ModuleD
-        private void ModuleDReset()
-        {
-            currentPenetrateCount = maxPenetrateCount;
-            checkList.Clear();
-        }
-
-        private void ProcessPenetrate(RaycastHit2D hit)
-        {
-            if (currentPenetrateCount < 0)
-            {
-                gameObject.SetActive(false);
-                return;
-            }
-
-            GameObject hitObject = hit.collider.gameObject;
-
-            if (hitObject == null) 
-                return;
-
-            if (checkList.Contains(hitObject)) 
-                return;
-
-            checkList.Add(hitObject);
-            currentPenetrateCount--;
-        }
-
-        #endregion
 
     }
 }

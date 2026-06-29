@@ -43,7 +43,16 @@ namespace _2DProject
             {
                 Debug.Log("fire");
                 Bullet bullet = bulletPool.Get();
-                bullet.Set(Muzzle.position, transform.up, 50);
+                bullet.Set(Muzzle.position, transform.up, 50, 0);
+                bullet.Fire();
+            }
+
+            if (SimpleInput.GetMouseButton(0))
+            {
+                Debug.Log("fireing");
+
+                Bullet bullet = bulletPool.Get();
+                bullet.Set(Muzzle.position, transform.up, 50, 0);
                 bullet.Fire();
             }
         }

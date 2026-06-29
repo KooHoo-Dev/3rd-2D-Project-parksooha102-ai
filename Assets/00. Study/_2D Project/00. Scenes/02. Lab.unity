@@ -1031,22 +1031,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_2DProject.Bullet
   speed: 20
-  opponentTag: Enemy
-  allyTag: Player
-  wallLayer:
+  <OpponentTag>k__BackingField: Enemy
+  <AllyTag>k__BackingField: Player
+  <WallLayer>k__BackingField:
     serializedVersion: 2
     m_Bits: 1024
-  isModuleA: 0
-  isModuleB: 0
-  isModuleC: 0
-  isModuleD: 1
-  isModuleE: 0
-  isModuleF: 0
-  maxRicochetCount: 3
-  trackingRange: 10
-  trackingAngle: 45
-  trackingSpeed: 3
-  maxPenetrateCount: 3
+  <BulletPool>k__BackingField: {fileID: 1168961998}
 --- !u!1001 &1696562883
 PrefabInstance:
   m_ObjectHideFlags: 0
