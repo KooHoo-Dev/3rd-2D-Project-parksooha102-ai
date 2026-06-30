@@ -1,16 +1,16 @@
 using System.Collections.Generic;
-using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 
 namespace _2DProject
 {
     public class Bullet : MonoBehaviour
     {
-        [SerializeField] private float speed = 1.0f;
-        [field: SerializeField] public string OpponentTag {  get; private set; }
+        [field: SerializeField] public float speed { get; private set; }
+        [field: SerializeField] public string OpponentTag { get; private set; }
         [field: SerializeField] public string AllyTag { get; private set; }
         [field: SerializeField] public LayerMask WallLayer { get; private set; }
         [field: SerializeField] public BulletPool BulletPool { get; private set; }
+        [field: SerializeField] public CombatEntity Owner { get; private set; }
 
         private bool isFired;
         public int damage {  get; private set; }
@@ -20,12 +20,12 @@ namespace _2DProject
 
         public void Set(Vector3 spawnPosition, Vector3 direction, int damage, int genaration)
         {
-            isFired = false;
             gameObject.SetActive(true);
             transform.position = spawnPosition;
             transform.up = direction;
             this.damage = damage;
             this.genaration = genaration;
+            isFired = true;
 
             foreach (IBulletModule m in modules)
             {
@@ -33,11 +33,6 @@ namespace _2DProject
             }
         }
 
-        public void Fire()
-        {
-            gameObject.SetActive(true);
-            isFired = true;
-        }
         private void Start()
         {
             AddModule(new ModuleA());
@@ -102,6 +97,18 @@ namespace _2DProject
                     canSurvive = true;
             }
 
+            HurtBox hurtBox = CombatSystem.Instance.GetHurtBoxOrNull(hit.collider);
+
+            CombatEntity sender = Owner;
+            CombatEntity receiver = hurtBox.Owner;
+
+            CombatEvent @event;
+            @event.EventType = CombatEventType.DamageEvent;
+            @event.Amount = damage;
+            @event.Position = hit.collider.ClosestPoint(sender.transform.position);
+
+            CombatSystem.Instance.To(sender, receiver, @event);
+
             if (canSurvive == false)
                 Kill();
         }
@@ -130,7 +137,6 @@ namespace _2DProject
             if (modules.Contains(module) == false)
             {
                 modules.Add(module);
-                module.OnInit(this);
             }
         }
 

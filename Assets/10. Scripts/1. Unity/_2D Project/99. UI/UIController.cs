@@ -3,15 +3,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement; // 씬제어를 위한 기능들이 담겨있는 네임스페이스
 using Jay;
-using _2DProject;
 
-namespace Study_SceneManagement
+namespace _2DProject
 {
-    // # 동기적 씬 로딩
-    // - 가장 간단한 방법으로 유니티에서 가장 많이 사용합니다.
-    // - 씬의 모든 요소들을 불러오며, 불러오자마자 현재 씬을 바꿔줍니다.
-
-    public class Study_SceneManagement : SingletonBase<Study_SceneManagement>
+    public class UIController : SingletonBase<UIController>
     {
         public enum PlacementMode
         {
@@ -28,14 +23,12 @@ namespace Study_SceneManagement
 
         private Canvas canvas;
 
-        // Awake가 아닌 SingletonBase의 OnInitialize 함수를 재정의하여 초기화 합니다
         protected override void OnInitialize()
         {
             base.OnInitialize();
             canvas = GetComponent<Canvas>();
         }
 
-        // Update is called once per frame
         private void Update()
         {
             bool isPressed = SimpleInput.GetKey(Key.Tab);
@@ -49,8 +42,6 @@ namespace Study_SceneManagement
                 PlaceObject();
             }
         }
-
-        // 각 버튼에 해당하는 오브젝트를 마우스의 월드 위치에 생성
 
         // 1번 버튼: 허수아비 더미
         public void SelectDummy()

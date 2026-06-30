@@ -3,19 +3,16 @@ using UnityEngine;
 
 namespace _2DProject
 {
-    public class Player : MonoBehaviour
+    public class Player : CombatEntity
     {
-
-        // Use this for initialization
-        void Start()
+        public override void TakeDamage(int damage)
         {
-
+            throw new System.NotImplementedException();
         }
 
-        // Update is called once per frame
-        void Update()
+        public override void TakeHeal(int heal)
         {
-
+            throw new System.NotImplementedException();
         }
     }
 }

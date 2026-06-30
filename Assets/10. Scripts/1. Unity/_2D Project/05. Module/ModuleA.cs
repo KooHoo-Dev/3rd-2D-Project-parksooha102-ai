@@ -30,18 +30,18 @@ public class ModuleA : IBulletModule
 
     private bool ProcessRicochet(RaycastHit2D hit)
     {
-        currentRicochetCount--;
-
-        if (currentRicochetCount < 0)
+        if (currentRicochetCount <= 0)
         {
             return false;
         }
 
-        bullet.transform.position = hit.point + hit.normal * 0.01f;
+        currentRicochetCount--;
 
         Vector3 reflected = Vector3.Reflect(bullet.transform.up, hit.normal);
 
+        bullet.transform.position = hit.point + hit.normal * 0.01f;
         bullet.transform.up = reflected;
+
         return true;
     }
 }

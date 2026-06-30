@@ -11,6 +11,7 @@ namespace _2DProject
         [field: SerializeField] public Bullet bullet { get; private set; }
 
         private TopDownCharactorController Controller { get; set; }
+        private bool isOnFire;
 
         private void Awake()
         {
@@ -21,7 +22,10 @@ namespace _2DProject
         {
             UpdatePosition();
             UpdateShotInput();
-            
+            if (SimpleInput.GetKeyDown(UnityEngine.InputSystem.Key.V))
+            {
+                isOnFire = !isOnFire;
+            }
         }
 
         private void UpdatePosition()
@@ -44,16 +48,14 @@ namespace _2DProject
                 Debug.Log("fire");
                 Bullet bullet = bulletPool.Get();
                 bullet.Set(Muzzle.position, transform.up, 50, 0);
-                bullet.Fire();
             }
 
-            if (SimpleInput.GetMouseButton(0))
+            if (SimpleInput.GetMouseButton(0) && isOnFire)
             {
                 Debug.Log("fireing");
 
                 Bullet bullet = bulletPool.Get();
                 bullet.Set(Muzzle.position, transform.up, 50, 0);
-                bullet.Fire();
             }
         }
 
