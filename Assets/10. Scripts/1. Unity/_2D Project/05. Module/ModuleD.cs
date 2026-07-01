@@ -10,7 +10,7 @@ namespace _2DProject
         private int maxPenetrateCount = 3;
         private int currentPenetrateCount;
 
-        private HashSet<GameObject> checkList = new();
+        private HashSet<GameObject> checkList = new HashSet<GameObject>();
 
         public void OnInit(Bullet bullet)
         {

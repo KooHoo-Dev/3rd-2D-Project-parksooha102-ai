@@ -8,7 +8,6 @@ namespace _2DProject
         [field: SerializeField] private Transform AimPoint;
         [field: SerializeField] private Transform Muzzle;
         [field: SerializeField] public BulletPool bulletPool;
-        [field: SerializeField] public Bullet bullet { get; private set; }
 
         private TopDownCharactorController Controller { get; set; }
         private bool isOnFire;
@@ -47,7 +46,7 @@ namespace _2DProject
             {
                 Debug.Log("fire");
                 Bullet bullet = bulletPool.Get();
-                bullet.Set(Muzzle.position, transform.up, 50, 0);
+                bullet.Set(Muzzle.position, transform.up, 50);
             }
 
             if (SimpleInput.GetMouseButton(0) && isOnFire)
@@ -55,7 +54,7 @@ namespace _2DProject
                 Debug.Log("fireing");
 
                 Bullet bullet = bulletPool.Get();
-                bullet.Set(Muzzle.position, transform.up, 50, 0);
+                bullet.Set(Muzzle.position, transform.up, 50);
             }
         }
 

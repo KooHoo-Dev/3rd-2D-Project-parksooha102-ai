@@ -1,70 +1,72 @@
-﻿using _2DProject;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class ModuleB : IBulletModule
+namespace _2DProject
 {
-    private Bullet bullet;
-
-    private float trackingRange = 10f;
-    private float trackingAngle = 45f;
-    private float trackingSpeed = 4f;
-
-    public void OnInit(Bullet bullet)
+    public class ModuleB : IBulletModule
     {
-        this.bullet = bullet;
-    }
+        private Bullet bullet;
 
-    public void OnUpdate()
-    {
-        UpdateTracking();
-    }
+        private float trackingRange = 10f;
+        private float trackingAngle = 45f;
+        private float trackingSpeed = 4f;
 
-    public bool OnHitEnemy(RaycastHit2D hit) 
-    {
-        return false;
-    }
-
-    public bool OnHitWall(RaycastHit2D hit)
-    {
-        return false;
-    }
-
-    private void UpdateTracking()
-    {
-        GameObject target = null;
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll(bullet.transform.position, trackingRange);
-
-        float nearestSqr = trackingRange * trackingRange;
-
-        foreach (Collider2D hit in hits)
+        public void OnInit(Bullet bullet)
         {
-            if (hit.CompareTag(bullet.OpponentTag) == false)
-                continue;
-
-            Vector3 dir = hit.transform.position - bullet.transform.position;
-            float sqr = dir.sqrMagnitude;
-
-            if (sqr >= nearestSqr)
-                continue;
-
-            if (Vector3.Angle(bullet.transform.up, dir) > trackingAngle)
-                continue;
-
-            bool blocked = Physics2D.Linecast(bullet.transform.position, hit.transform.position, bullet.WallLayer);
-
-            if (blocked)
-                continue;
-
-            nearestSqr = sqr;
-            target = hit.gameObject;
+            this.bullet = bullet;
         }
 
-        if (target != null)
+        public void OnUpdate()
         {
-            Vector3 targetDir = (target.transform.position - bullet.transform.position).normalized;
+            UpdateTracking();
+        }
 
-            bullet.transform.up = Vector3.RotateTowards(bullet.transform.up, targetDir, trackingSpeed * Time.deltaTime, 0f);
+        public bool OnHitEnemy(RaycastHit2D hit)
+        {
+            return false;
+        }
+
+        public bool OnHitWall(RaycastHit2D hit)
+        {
+            return false;
+        }
+
+        private void UpdateTracking()
+        {
+            GameObject target = null;
+
+            Collider2D[] hits = Physics2D.OverlapCircleAll(bullet.transform.position, trackingRange);
+
+            float nearestSqr = trackingRange * trackingRange;
+
+            foreach (Collider2D hit in hits)
+            {
+                if (hit.CompareTag(bullet.OpponentTag) == false)
+                    continue;
+
+                Vector3 dir = hit.transform.position - bullet.transform.position;
+                float sqr = dir.sqrMagnitude;
+
+                if (sqr >= nearestSqr)
+                    continue;
+
+                if (Vector3.Angle(bullet.transform.up, dir) > trackingAngle)
+                    continue;
+
+                bool blocked = Physics2D.Linecast(bullet.transform.position, hit.transform.position, bullet.WallLayer);
+
+                if (blocked)
+                    continue;
+
+                nearestSqr = sqr;
+                target = hit.gameObject;
+            }
+
+            if (target != null)
+            {
+                Vector3 targetDir = (target.transform.position - bullet.transform.position).normalized;
+
+                bullet.transform.up = Vector3.RotateTowards(bullet.transform.up, targetDir, trackingSpeed * Time.deltaTime, 0f);
+            }
         }
     }
 }

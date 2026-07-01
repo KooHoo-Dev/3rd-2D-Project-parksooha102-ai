@@ -14,17 +14,15 @@ namespace _2DProject
 
         private bool isFired;
         public int damage {  get; private set; }
-        public int genaration { get; private set; }
 
-        private List<IBulletModule> modules = new();
+        private List<IBulletModule> modules = new List<IBulletModule>();
 
-        public void Set(Vector3 spawnPosition, Vector3 direction, int damage, int genaration)
+        public void Set(Vector3 spawnPosition, Vector3 direction, int damage)
         {
             gameObject.SetActive(true);
             transform.position = spawnPosition;
             transform.up = direction;
             this.damage = damage;
-            this.genaration = genaration;
             isFired = true;
 
             foreach (IBulletModule m in modules)
@@ -33,17 +31,17 @@ namespace _2DProject
             }
         }
 
-        private void Start()
+        private void Awake()
         {
             AddModule(new ModuleA());
-            //AddModule(new ModuleB());
-            //AddModule(new ModuleC());
+            AddModule(new ModuleB());
+            AddModule(new ModuleC());
             AddModule(new ModuleD());
             AddModule(new ModuleE());
-            //AddModule(new ModuleF());
+            AddModule(new ModuleF());
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             if (isFired == false)
                 return;
@@ -98,6 +96,12 @@ namespace _2DProject
             }
 
             HurtBox hurtBox = CombatSystem.Instance.GetHurtBoxOrNull(hit.collider);
+
+            if (hurtBox == null)
+            {
+                Debug.LogWarning("HurtBox not found for collider: " + hit.collider.name);
+                return;
+            }
 
             CombatEntity sender = Owner;
             CombatEntity receiver = hurtBox.Owner;

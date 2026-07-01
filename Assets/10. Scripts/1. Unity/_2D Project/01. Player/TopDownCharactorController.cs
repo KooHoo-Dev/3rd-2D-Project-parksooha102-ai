@@ -32,8 +32,6 @@ namespace _2DProject
             externalDelta = Vector3.zero;
 
             Vector3 moveVector = Vector3.zero;
-            // moveVector.x = ResolveAxisMovement(desireMove.x, Vector3.right);
-            // moveVector.y = ResolveAxisMovement(desireMove.y, Vector3.up);
             moveVector = desireMove;
 
             rBody.MovePosition(transform.position + moveVector);
@@ -55,58 +53,6 @@ namespace _2DProject
         {
             externalDelta += delta;
         }
-
-        #endregion
-
-        #region Private Methods (운동 파이프라인)
-
-        /*
-        private float ResolveAxisMovement(float move, Vector3 axis)
-        {
-            if (move == 0.0f) return 0.0f;
-
-            Vector3 dir = (move > 0.0f ? axis : -axis);
-            float distance = Mathf.Abs(move);
-            Bounds box = GetCastBox();
-
-            RaycastHit2D hit = Physics2D.BoxCast(box.center, box.size, 0.0f, dir, distance, collisionLayer);
-
-            if (hit.collider == null) return move;
-
-            float allowed = Mathf.Max(0, hit.distance - skinWidth);
-
-            return Mathf.Sign(move) * allowed;
-        }
-
-        private Bounds GetCastBox()
-        {
-            Bounds box = col.bounds;
-
-            Vector3 size = box.size;
-            size.x -= skinWidth * 2;
-            size.y -= skinWidth * 2;
-            box.size = size;
-
-            return box;
-        }*/
-        /*
-        private float ResolveAxisMovement(float move, Vector3 axis)
-        {
-            if (move == 0.0f) return 0.0f;
-
-            Vector3 dir = (move > 0.0f ? axis : -axis);
-            float distance = Mathf.Abs(move);
-
-            float castRadius = col.radius - skinWidth;
-
-            RaycastHit2D hit = Physics2D.CircleCast(transform.position, castRadius, dir, distance, collisionLayer);
-
-            if (hit.collider == null) return move;
-
-            float allowed = Mathf.Max(0, hit.distance - skinWidth);
-
-            return Mathf.Sign(move) * allowed;
-        }*/
 
         #endregion
 

@@ -1,47 +1,49 @@
 ﻿using UnityEngine;
-using _2DProject;
 
-public class ModuleA : IBulletModule
+namespace _2DProject
 {
-    private Bullet bullet;
-
-    private int maxRicochetCount = 3;
-    private int currentRicochetCount;
-
-    public void OnInit(Bullet bullet)
+    public class ModuleA : IBulletModule
     {
-        this.bullet = bullet;
-        currentRicochetCount = maxRicochetCount;
-    }
+        private Bullet bullet;
 
-    public void OnUpdate()
-    {
-    }
+        private int maxRicochetCount = 3;
+        private int currentRicochetCount;
 
-    public bool OnHitEnemy(RaycastHit2D hit)
-    {
-        return false;
-    }
+        public void OnInit(Bullet bullet)
+        {
+            this.bullet = bullet;
+            currentRicochetCount = maxRicochetCount;
+        }
 
-    public bool OnHitWall(RaycastHit2D hit)
-    {
-        return ProcessRicochet(hit);
-    }
+        public void OnUpdate()
+        {
+        }
 
-    private bool ProcessRicochet(RaycastHit2D hit)
-    {
-        if (currentRicochetCount <= 0)
+        public bool OnHitEnemy(RaycastHit2D hit)
         {
             return false;
         }
 
-        currentRicochetCount--;
+        public bool OnHitWall(RaycastHit2D hit)
+        {
+            return ProcessRicochet(hit);
+        }
 
-        Vector3 reflected = Vector3.Reflect(bullet.transform.up, hit.normal);
+        private bool ProcessRicochet(RaycastHit2D hit)
+        {
+            if (currentRicochetCount <= 0)
+            {
+                return false;
+            }
 
-        bullet.transform.position = hit.point + hit.normal * 0.01f;
-        bullet.transform.up = reflected;
+            currentRicochetCount--;
 
-        return true;
+            Vector3 reflected = Vector3.Reflect(bullet.transform.up, hit.normal);
+
+            bullet.transform.position = hit.point + hit.normal * 0.01f;
+            bullet.transform.up = reflected;
+
+            return true;
+        }
     }
 }

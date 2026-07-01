@@ -1,41 +1,75 @@
 using Study.Utilities;
-using _2DProject;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class DamagePopupFeedback : MonoBehaviour, ICombatObserver
+namespace _2DProject
 {
-    [field: SerializeField] public FloatingText PopupText { get; private set; }
-    [field: SerializeField] public Color DamageColor { get; private set; }
-
-    private ComponentPool<FloatingText> Pool { get; set; }
-
-    private void Awake()
+    public class DamagePopupFeedback : MonoBehaviour, ICombatObserver
     {
-        Pool = new ComponentPool<FloatingText>(PopupText, transform);
-    }
+        [field: SerializeField] public FloatingText PopupText { get; private set; }
+        [field: SerializeField] public Color DamageColor { get; private set; }
 
-    private void OnEnable()
-    {
-        CombatSystem.Instance.Subscribe(this);
-    }
+        private Dictionary<CombatEntity, int> damageBuffer = new Dictionary<CombatEntity, int>();
+        private HashSet<CombatEntity> processingEntities = new HashSet<CombatEntity>();
 
-    private void OnDisable()
-    {
-        if (CombatSystem.Instance != null)
-            CombatSystem.Instance.UnSubscribe(this);
-    }
+        private ComponentPool<FloatingText> Pool { get; set; }
 
-    public void OnDamageTaken(CombatEntity sender, CombatEntity receiver, CombatEvent @event)
-    {
-        FloatingText textItem = Pool.Get();
+        private void Awake()
+        {
+            Pool = new ComponentPool<FloatingText>(PopupText, transform);
+        }
 
-        Color color = DamageColor;
+        private void OnEnable()
+        {
+            CombatSystem.Instance.Subscribe(this);
+        }
 
-        textItem.Show($"{@event.Amount}", color, receiver.HeadUpPivot.position);
-    }
+        private void OnDisable()
+        {
+            if (CombatSystem.Instance != null)
+                CombatSystem.Instance.UnSubscribe(this);
+        }
 
-    public void OnHealTaken(CombatEntity sender, CombatEntity receiver, CombatEvent @event)
-    {
-        
+        public void OnDamageTaken(CombatEntity sender, CombatEntity receiver, CombatEvent @event)
+        {
+            if (damageBuffer.ContainsKey(receiver))
+                damageBuffer[receiver] += @event.Amount;
+            else
+                damageBuffer[receiver] = @event.Amount;
+
+            if (!processingEntities.Contains(receiver))
+            {
+                StartCoroutine(ProcessDamageSummation(receiver));
+            }
+        }
+
+        public void OnHealTaken(CombatEntity sender, CombatEntity receiver, CombatEvent @event)
+        {
+        }
+
+        private IEnumerator ProcessDamageSummation(CombatEntity target)
+        {
+            processingEntities.Add(target);
+
+            yield return new WaitForSeconds(0.1f);
+
+            if (damageBuffer.TryGetValue(target, out int totalAmount))
+            {
+                SpawnPopup(target, totalAmount);
+                damageBuffer.Remove(target);
+            }
+
+            processingEntities.Remove(target);
+        }
+
+        private void SpawnPopup(CombatEntity target, int totalAmount)
+        {
+            FloatingText textItem = Pool.Get();
+            Color color = DamageColor;
+
+            textItem.Show($"{totalAmount}", color, target.HeadUpPivot.position);
+        }
+
     }
 }
