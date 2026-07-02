@@ -10,6 +10,24 @@ namespace _2DProject
         private float trackingAngle = 45f;
         private float trackingSpeed = 4f;
 
+        public void OnHitEnemy(RaycastHit2D hit)
+        {
+        }
+
+        public void OnHitWall(RaycastHit2D hit)
+        {
+        }
+
+        public bool CanSurviveEnemy(RaycastHit2D hit)
+        {
+            return false;
+        }
+
+        public bool CanSurviveWall(RaycastHit2D hit)
+        {
+            return false;
+        }
+
         public void OnInit(Bullet bullet)
         {
             this.bullet = bullet;
@@ -18,16 +36,6 @@ namespace _2DProject
         public void OnUpdate()
         {
             UpdateTracking();
-        }
-
-        public bool OnHitEnemy(RaycastHit2D hit)
-        {
-            return false;
-        }
-
-        public bool OnHitWall(RaycastHit2D hit)
-        {
-            return false;
         }
 
         private void UpdateTracking()
@@ -68,5 +76,6 @@ namespace _2DProject
                 bullet.transform.up = Vector3.RotateTowards(bullet.transform.up, targetDir, trackingSpeed * Time.deltaTime, 0f);
             }
         }
+
     }
 }

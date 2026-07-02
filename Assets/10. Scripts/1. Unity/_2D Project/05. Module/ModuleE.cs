@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace _2DProject
 {
@@ -13,20 +12,16 @@ namespace _2DProject
 
         private int currentGeneration = 0;
 
-        private HashSet<GameObject> checkList = new HashSet<GameObject>();
-
-        private static GameObject nextIgnoreObject;
         private static int nextGeneration;
         private static bool isTransferring;
+
         public void OnInit(Bullet bullet)
         {
             this.bullet = bullet;
-            checkList.Clear();
 
             if (isTransferring)
             {
                 currentGeneration = nextGeneration;
-                if (nextIgnoreObject != null) checkList.Add(nextIgnoreObject);
             }
             else
             {
@@ -34,31 +29,40 @@ namespace _2DProject
             }
         }
 
+        public void OnHitEnemy(RaycastHit2D hit)
+        {
+            ProcessSplit(hit);
+        }
+
+        public void OnHitWall(RaycastHit2D hit)
+        {
+            ProcessSplit(hit);
+        }
+
+        public bool CanSurviveEnemy(RaycastHit2D hit)
+        {
+            return false;
+        }
+
+        public bool CanSurviveWall(RaycastHit2D hit)
+        {
+            return false;
+        }
+
         public void OnUpdate()
         {
-        }
-
-        public bool OnHitEnemy(RaycastHit2D hit)
-        {
-            return ProcessSplit(hit);
-        }
-
-        public bool OnHitWall(RaycastHit2D hit)
-        {
-            return ProcessSplit(hit);
         }
 
         private bool ProcessSplit(RaycastHit2D hit)
         {
             GameObject hitObject = hit.collider.gameObject;
-            if (hitObject == null || checkList.Contains(hitObject)) return false;
+
+            if (hitObject == null) 
+                return false;
 
             if (currentGeneration < maxGenaration)
             {
-                checkList.Add(hitObject);
-
                 isTransferring = true;
-                nextIgnoreObject = hitObject;
                 nextGeneration = currentGeneration + 1;
 
                 float startAngle = -((splitAmount - 1) * splitAngle) * 0.5f;
@@ -70,14 +74,14 @@ namespace _2DProject
 
                     Bullet subBullet = bullet.BulletPool.Get();
 
-                    subBullet.Set(bullet.transform.position, newDirection, Mathf.RoundToInt(bullet.damage * multiplier));
+                    subBullet.Set(bullet.transform.position, newDirection, Mathf.RoundToInt(bullet.damage * multiplier), hit.collider);
                 }
 
                 isTransferring = false;
-                nextIgnoreObject = null;
 
                 bullet.Kill();
             }
+
             return false;
         }
 

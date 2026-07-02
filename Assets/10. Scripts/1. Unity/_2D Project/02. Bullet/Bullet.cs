@@ -13,17 +13,34 @@ namespace _2DProject
         [field: SerializeField] public CombatEntity Owner { get; private set; }
 
         private bool isFired;
-        public int damage {  get; private set; }
+        public int damage { get; private set; }
+
+        private float bulletAliveTime;
+        private const float BULLET_DEATH_TIME = 5f;
+        private const float COOLDOWN = 0.2f;
 
         private List<IBulletModule> modules = new List<IBulletModule>();
+        private readonly Dictionary<Collider2D, float> targetIgnoreTimers = new Dictionary<Collider2D, float>();
 
-        public void Set(Vector3 spawnPosition, Vector3 direction, int damage)
+        public void Set(Vector3 spawnPosition, Vector3 direction, int damage, Collider2D inheritedHitObject = null)
         {
             gameObject.SetActive(true);
+
             transform.position = spawnPosition;
             transform.up = direction;
+
             this.damage = damage;
+
             isFired = true;
+
+            bulletAliveTime = 0f;
+
+            targetIgnoreTimers.Clear();
+
+            if (inheritedHitObject != null)
+            {
+                targetIgnoreTimers.Add(inheritedHitObject, bulletAliveTime + 100f);
+            }
 
             foreach (IBulletModule m in modules)
             {
@@ -34,11 +51,11 @@ namespace _2DProject
         private void Awake()
         {
             AddModule(new ModuleA());
-            AddModule(new ModuleB());
-            AddModule(new ModuleC());
+            //AddModule(new ModuleB());
+            //AddModule(new ModuleC());
             AddModule(new ModuleD());
             AddModule(new ModuleE());
-            AddModule(new ModuleF());
+            //AddModule(new ModuleF());
         }
 
         private void FixedUpdate()
@@ -46,93 +63,125 @@ namespace _2DProject
             if (isFired == false)
                 return;
 
-            foreach (IBulletModule m in modules)
-                m.OnUpdate();
+            bulletAliveTime += Time.fixedDeltaTime;
+
+            if (bulletAliveTime >= BULLET_DEATH_TIME)
+            {
+                Kill();
+                return;
+            }
+
+            for (int i = 0; i < modules.Count; i++)
+            {
+                modules[i].OnUpdate();
+            }
 
             MoveBullet();
         }
 
         private void MoveBullet()
         {
-            float moveDistance = speed * Time.deltaTime;
+            float moveDistance = speed * Time.fixedDeltaTime;
             RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.up, moveDistance);
 
-            if (hit.collider != null && !hit.collider.CompareTag(AllyTag))
+            if (hit.collider != null && hit.collider.CompareTag(AllyTag) == false)
             {
+                transform.position = hit.point;
+
                 ProcessHit(hit);
+
+                if (!gameObject.activeSelf)
+                    return;
             }
 
-            if (gameObject.activeSelf)
-            {
-                transform.position += transform.up * moveDistance;
-            }
+            transform.position += transform.up * moveDistance;
         }
 
         private void ProcessHit(RaycastHit2D hit)
         {
             GameObject target = hit.collider.gameObject;
+            bool canSurvive = false;
 
             if (target.CompareTag(OpponentTag))
             {
+                if (CanHit(hit.collider) == false)
+                    return;
+
                 ProcessEnemyHit(hit);
+
+                foreach (IBulletModule m in modules)
+                {
+                    if (m.CanSurviveEnemy(hit)) canSurvive = true;
+                }
+            }
+            else if (WallLayer.Contains(target))
+            {
+                ProcessWallHit(hit);
+
+                foreach (IBulletModule m in modules)
+                {
+                    if (m.CanSurviveWall(hit)) canSurvive = true;
+                }
+            }
+            else
+            {
                 return;
             }
 
-            if (WallLayer.Contains(target))
+            if (canSurvive == false)
             {
-                ProcessWallHit(hit);
-                return;
+                Kill();
             }
+        }
+
+        private bool CanHit(Collider2D collider)
+        {
+            if (targetIgnoreTimers.TryGetValue(collider, out float ignoreUntilTime))
+            {
+                if (bulletAliveTime < ignoreUntilTime)
+                {
+                    return false;
+                }
+            }
+
+            targetIgnoreTimers[collider] = bulletAliveTime + COOLDOWN;
+            return true;
         }
 
         private void ProcessEnemyHit(RaycastHit2D hit)
         {
-            bool canSurvive = false;
-
             foreach (IBulletModule m in modules)
-            {
-                if (m.OnHitEnemy(hit))
-                    canSurvive = true;
-            }
+                m.OnHitEnemy(hit);
 
             HurtBox hurtBox = CombatSystem.Instance.GetHurtBoxOrNull(hit.collider);
 
             if (hurtBox == null)
             {
-                Debug.LogWarning("HurtBox not found for collider: " + hit.collider.name);
-                return;
+                Debug.LogWarning($"HurtBox not found for collider: {hit.collider.name}");
             }
+            else
+            {
+                CombatEntity sender = Owner;
+                CombatEntity receiver = hurtBox.Owner;
 
-            CombatEntity sender = Owner;
-            CombatEntity receiver = hurtBox.Owner;
+                CombatEvent @event;
+                @event.EventType = CombatEventType.DamageEvent;
+                @event.Amount = damage;
+                @event.Position = hit.collider.ClosestPoint(sender.transform.position);
 
-            CombatEvent @event;
-            @event.EventType = CombatEventType.DamageEvent;
-            @event.Amount = damage;
-            @event.Position = hit.collider.ClosestPoint(sender.transform.position);
-
-            CombatSystem.Instance.To(sender, receiver, @event);
-
-            if (canSurvive == false)
-                Kill();
+                CombatSystem.Instance.To(sender, receiver, @event);
+            }
         }
 
         private void ProcessWallHit(RaycastHit2D hit)
         {
-            bool canSurvive = false;
-
             foreach (IBulletModule m in modules)
-            {
-                if (m.OnHitWall(hit))
-                    canSurvive = true;
-            }
-
-            if (canSurvive == false)
-                Kill();
+                m.OnHitWall(hit);
         }
 
         public void Kill()
         {
+            isFired = false;
             gameObject.SetActive(false);
         }
 
@@ -143,6 +192,5 @@ namespace _2DProject
                 modules.Add(module);
             }
         }
-
     }
 }

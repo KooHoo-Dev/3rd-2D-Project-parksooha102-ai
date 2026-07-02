@@ -14,15 +14,23 @@ namespace _2DProject
             this.bullet = bullet;
         }
 
-        public bool OnHitEnemy(RaycastHit2D hit)
+        public void OnHitEnemy(RaycastHit2D hit)
         {
             ProcessExplode();
+        }
+
+        public void OnHitWall(RaycastHit2D hit)
+        {
+            ProcessExplode();
+        }
+
+        public bool CanSurviveEnemy(RaycastHit2D hit)
+        {
             return false;
         }
 
-        public bool OnHitWall(RaycastHit2D hit)
+        public bool CanSurviveWall(RaycastHit2D hit)
         {
-            ProcessExplode();
             return false;
         }
 
