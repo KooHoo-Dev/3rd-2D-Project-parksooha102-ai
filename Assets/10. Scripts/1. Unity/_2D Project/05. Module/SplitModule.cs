@@ -2,7 +2,7 @@
 
 namespace _2DProject
 {
-    public class ModuleE : IBulletModule
+    public class SplitModule : IBulletModule
     {
         private Bullet bullet;
         private int maxGenaration = 3;
@@ -14,6 +14,14 @@ namespace _2DProject
 
         private static int nextGeneration;
         private static bool isTransferring;
+
+        public SplitModule(SplitModuleData data)
+        {
+            maxGenaration = data.MaxGeneration;
+            splitAmount = data.SplitAmount;
+            splitAngle = data.SplitAngle;
+            multiplier = data.Multiplier;
+        }
 
         public void OnInit(Bullet bullet)
         {

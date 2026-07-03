@@ -1,7 +1,6 @@
 using Study.Utilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement; // 씬제어를 위한 기능들이 담겨있는 네임스페이스
 using Jay;
 
 namespace _2DProject

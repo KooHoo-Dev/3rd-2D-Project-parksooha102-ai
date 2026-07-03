@@ -2,12 +2,19 @@
 
 namespace _2DProject
 {
-    public class ModuleC : IBulletModule
+    public class ExplosionModule : IBulletModule
     {
         Bullet bullet;
+
         private float explosionRadius = 5f;
         private float explosionMultiplier = 0.5f;
         private ExplosionPool explosionPool = new ExplosionPool();
+
+        public ExplosionModule(ExplosionModuleData data)
+        {
+            explosionRadius = data.ExplosionRadius;
+            explosionMultiplier = data.ExplosionMultiplier;
+        }
 
         public void OnInit(Bullet bullet)
         {

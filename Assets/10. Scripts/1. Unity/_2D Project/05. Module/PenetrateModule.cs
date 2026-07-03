@@ -2,10 +2,15 @@
 
 namespace _2DProject
 {
-    public class ModuleD : IBulletModule
+    public class PenetrateModule : IBulletModule
     {
         private int maxPenetrateCount = 3;
         private int currentPenetrateCount;
+
+        public PenetrateModule(PenetrateModuleData data)
+        {
+            maxPenetrateCount = data.MaxPenetrateCount;
+        }
 
         public void OnInit(Bullet bullet)
         {

@@ -2,13 +2,25 @@
 
 namespace _2DProject
 {
-    public class ModuleB : IBulletModule
+    public class HomingModule : IBulletModule
     {
         private Bullet bullet;
 
         private float trackingRange = 10f;
         private float trackingAngle = 45f;
         private float trackingSpeed = 4f;
+
+        public HomingModule(HomingModuleData data)
+        {
+            trackingRange = data.TrackingRange;
+            trackingAngle = data.TrackingAngle;
+            trackingSpeed = data.TrackingSpeed;
+        }
+
+        public void OnInit(Bullet bullet)
+        {
+            this.bullet = bullet;
+        }
 
         public void OnHitEnemy(RaycastHit2D hit)
         {
@@ -26,11 +38,6 @@ namespace _2DProject
         public bool CanSurviveWall(RaycastHit2D hit)
         {
             return false;
-        }
-
-        public void OnInit(Bullet bullet)
-        {
-            this.bullet = bullet;
         }
 
         public void OnUpdate()

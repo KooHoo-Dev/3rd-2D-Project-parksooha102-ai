@@ -48,14 +48,22 @@ namespace _2DProject
             }
         }
 
-        private void Awake()
+        private void Start()
         {
-            AddModule(new ModuleA());
-            //AddModule(new ModuleB());
-            //AddModule(new ModuleC());
-            AddModule(new ModuleD());
-            AddModule(new ModuleE());
-            //AddModule(new ModuleF());
+            if (ModuleDataManager.Instance != null)
+            {
+                List<ModuleInfo> equippedInfos = ModuleDataManager.Instance.EquippedModules;
+
+                foreach (ModuleInfo info in equippedInfos)
+                {
+                    IBulletModule logicModule = info.CreateModule();
+                    if (logicModule != null)
+                    {
+                        AddModule(logicModule);
+                        logicModule.OnInit(this);
+                    }
+                }
+            }
         }
 
         private void FixedUpdate()
@@ -192,5 +200,6 @@ namespace _2DProject
                 modules.Add(module);
             }
         }
+
     }
 }

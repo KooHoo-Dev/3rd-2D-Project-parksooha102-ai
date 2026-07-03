@@ -16,12 +16,14 @@ public class DamagePopupFeedback : MonoBehaviour, ICombatObserver
 
     private void OnEnable()
     {
-        CombatSystem.Instance.Subscribe(this);
+        if (CombatSystem.Instance != null)
+            CombatSystem.Instance.Subscribe(this);
     }
 
     private void OnDisable()
     {
-        CombatSystem.Instance.UnSubscribe(this);
+        if (CombatSystem.Instance != null)
+            CombatSystem.Instance.UnSubscribe(this);
     }
 
     public void OnDamageTaken(CombatEntity sender, CombatEntity receiver, CombatEvent @event)

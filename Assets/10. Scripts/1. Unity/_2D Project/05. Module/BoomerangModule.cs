@@ -2,7 +2,7 @@
 using Study.Utilities;
 using UnityEngine;
 
-public class ModuleF : IBulletModule
+public class BoomerangModule : IBulletModule
 {
     private Bullet bullet;
 
@@ -12,6 +12,12 @@ public class ModuleF : IBulletModule
     private float killDistance = 0.5f;
 
     private Vector3 startPosition;
+
+    public BoomerangModule(BoomerangModuleData data)
+    {
+        returnDistance = data.ReturnDistance;
+        killDistance = data.KillDistance;
+    }
 
     public void OnInit(Bullet bullet)
     {

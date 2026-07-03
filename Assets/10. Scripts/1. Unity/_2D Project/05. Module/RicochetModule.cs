@@ -2,13 +2,18 @@
 
 namespace _2DProject
 {
-    public class ModuleA : IBulletModule
+    public class RicochetModule : IBulletModule
     {
         private Bullet bullet;
 
-        private int maxRicochetCount = 3;
+        private int maxRicochetCount;
         private int currentRicochetCount;
         private bool isRicocheted;
+
+        public RicochetModule(RicochetModuleData data)
+        {
+            maxRicochetCount = data.MaxRicochetCount;
+        }
 
         public void OnInit(Bullet bullet)
         {
