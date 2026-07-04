@@ -1,5 +1,6 @@
 ﻿using Study.Utilities;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace _2DProject
 {
@@ -45,16 +46,15 @@ namespace _2DProject
             if (SimpleInput.GetMouseButtonDown(0))
             {
                 Debug.Log("fire");
-                Bullet bullet = bulletPool.Get();
-                bullet.Set(Muzzle.position, transform.up, 50);
+
+                Bullet bullet = BulletFactory.Create(bulletPool, Muzzle.position, transform.up, 50);
             }
 
             if (SimpleInput.GetMouseButton(0) && isOnFire)
             {
                 Debug.Log("fireing");
 
-                Bullet bullet = bulletPool.Get();
-                bullet.Set(Muzzle.position, transform.up, 50);
+                Bullet bullet = BulletFactory.Create(bulletPool, Muzzle.position, transform.up, 50);
             }
         }
 

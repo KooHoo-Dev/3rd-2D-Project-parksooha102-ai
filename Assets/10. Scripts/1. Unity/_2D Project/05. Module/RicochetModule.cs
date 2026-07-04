@@ -6,18 +6,25 @@ namespace _2DProject
     {
         private Bullet bullet;
 
+        private RicochetModuleData data;
         private int maxRicochetCount;
+
         private int currentRicochetCount;
         private bool isRicocheted;
 
         public RicochetModule(RicochetModuleData data)
         {
+            this.data = data;
             maxRicochetCount = data.MaxRicochetCount;
         }
 
-        public void OnInit(Bullet bullet)
+        public void Bind(Bullet bullet)
         {
             this.bullet = bullet;
+        }
+
+        public void ResetState()
+        {
             currentRicochetCount = maxRicochetCount;
             isRicocheted = false;
         }
@@ -45,6 +52,16 @@ namespace _2DProject
         {
         }
 
+        public IBulletModule Clone()
+        {
+            RicochetModule clone = new RicochetModule(data);
+
+            clone.currentRicochetCount = currentRicochetCount;
+            clone.isRicocheted = isRicocheted;
+
+            return clone;
+        }
+
         private void ProcessRicochet(RaycastHit2D hit)
         {
             if (currentRicochetCount <= 0)
@@ -55,6 +72,7 @@ namespace _2DProject
 
             currentRicochetCount--;
             isRicocheted = true;
+            Debug.Log($"Ricochet! Remaining ricochets: {currentRicochetCount}");
 
             Vector3 reflected = Vector3.Reflect(bullet.transform.up, hit.normal);
             reflected = reflected.normalized;

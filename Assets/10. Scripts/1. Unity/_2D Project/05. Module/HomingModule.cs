@@ -6,20 +6,26 @@ namespace _2DProject
     {
         private Bullet bullet;
 
+        private HomingModuleData data;
         private float trackingRange = 10f;
         private float trackingAngle = 45f;
         private float trackingSpeed = 4f;
 
         public HomingModule(HomingModuleData data)
         {
+            this.data = data;
             trackingRange = data.TrackingRange;
             trackingAngle = data.TrackingAngle;
             trackingSpeed = data.TrackingSpeed;
         }
 
-        public void OnInit(Bullet bullet)
+        public void Bind(Bullet bullet)
         {
             this.bullet = bullet;
+        }
+
+        public void ResetState()
+        {
         }
 
         public void OnHitEnemy(RaycastHit2D hit)
@@ -43,6 +49,12 @@ namespace _2DProject
         public void OnUpdate()
         {
             UpdateTracking();
+        }
+
+        public IBulletModule Clone()
+        {
+            HomingModule clone = new HomingModule(data);
+            return clone;
         }
 
         private void UpdateTracking()

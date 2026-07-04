@@ -21,8 +21,6 @@ namespace _2DProject
             col2D = GetComponent<Collider2D>();
         }
 
-        // 아래의 Start와 OnDestroy보다 OnEnable이랑 OnDisable
-
         private void Start()
         {
             CombatSystem.Instance.AddHurtBox(col2D, this);

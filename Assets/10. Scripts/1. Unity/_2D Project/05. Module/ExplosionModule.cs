@@ -6,19 +6,26 @@ namespace _2DProject
     {
         Bullet bullet;
 
+        private ExplosionModuleData data;
         private float explosionRadius = 5f;
-        private float explosionMultiplier = 0.5f;
+        private int explosionDamage = 10;
+
         private ExplosionPool explosionPool = new ExplosionPool();
 
         public ExplosionModule(ExplosionModuleData data)
         {
+            this.data = data;
             explosionRadius = data.ExplosionRadius;
-            explosionMultiplier = data.ExplosionMultiplier;
+            explosionDamage = data.ExplosionDamage;
         }
 
-        public void OnInit(Bullet bullet)
+        public void Bind(Bullet bullet)
         {
             this.bullet = bullet;
+        }
+
+        public void ResetState()
+        {
         }
 
         public void OnHitEnemy(RaycastHit2D hit)
@@ -43,6 +50,12 @@ namespace _2DProject
 
         public void OnUpdate()
         {
+        }
+
+        public IBulletModule Clone()
+        {
+            ExplosionModule clone = new ExplosionModule(data);
+            return clone;
         }
 
         private void ProcessExplode()
@@ -81,7 +94,7 @@ namespace _2DProject
 
                 CombatEvent @event;
                 @event.EventType = CombatEventType.DamageEvent;
-                @event.Amount = Mathf.RoundToInt(bullet.damage * explosionMultiplier);
+                @event.Amount = explosionDamage;
                 @event.Position = target.ClosestPoint(sender.transform.position);
 
                 CombatSystem.Instance.To(sender, receiver, @event);

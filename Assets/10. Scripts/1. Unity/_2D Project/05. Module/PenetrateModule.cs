@@ -4,15 +4,22 @@ namespace _2DProject
 {
     public class PenetrateModule : IBulletModule
     {
+        private PenetrateModuleData data;
         private int maxPenetrateCount = 3;
+
         private int currentPenetrateCount;
 
         public PenetrateModule(PenetrateModuleData data)
         {
+            this.data = data;
             maxPenetrateCount = data.MaxPenetrateCount;
         }
 
-        public void OnInit(Bullet bullet)
+        public void Bind(Bullet bullet)
+        {
+        }
+
+        public void ResetState()
         {
             currentPenetrateCount = maxPenetrateCount;
         }
@@ -31,6 +38,7 @@ namespace _2DProject
                 return false;
 
             currentPenetrateCount--;
+            Debug.Log($"관통! {currentPenetrateCount} 남음");
             return true;
         }
 
@@ -41,6 +49,15 @@ namespace _2DProject
 
         public void OnUpdate()
         {
+        }
+
+        public IBulletModule Clone()
+        {
+            PenetrateModule clone = new PenetrateModule(data);
+
+            clone.currentPenetrateCount = currentPenetrateCount;
+
+            return clone;
         }
 
     }

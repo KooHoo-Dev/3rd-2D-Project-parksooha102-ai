@@ -1,77 +1,93 @@
-﻿using _2DProject;
-using Study.Utilities;
+﻿using Study.Utilities;
 using UnityEngine;
 
-public class BoomerangModule : IBulletModule
+namespace _2DProject
 {
-    private Bullet bullet;
-
-    private bool isReturning;
-
-    private float returnDistance = 10.0f;
-    private float killDistance = 0.5f;
-
-    private Vector3 startPosition;
-
-    public BoomerangModule(BoomerangModuleData data)
+    public class BoomerangModule : IBulletModule
     {
-        returnDistance = data.ReturnDistance;
-        killDistance = data.KillDistance;
-    }
+        private Bullet bullet;
 
-    public void OnInit(Bullet bullet)
-    {
-        this.bullet = bullet;
+        private BoomerangModuleData data;
+        private float returnDistance = 10.0f;
+        private float killDistance = 0.5f;
 
-        startPosition = bullet.transform.position;
-        isReturning = false;
-    }
+        private Vector3 startPosition;
+        private bool isReturning;
 
-    public void OnUpdate()
-    {
-        if (isReturning == false)
+        public BoomerangModule(BoomerangModuleData data)
         {
-            Vector3 currentPos = bullet.transform.position;
-            float distance = Vector3.Distance(currentPos, startPosition);
+            this.data = data;
+            returnDistance = data.ReturnDistance;
+            killDistance = data.KillDistance;
+        }
 
-            if (distance >= returnDistance)
+        public void Bind(Bullet bullet)
+        {
+            this.bullet = bullet;
+            startPosition = bullet.transform.position;
+        }
+
+        public void ResetState()
+        {
+            isReturning = false;
+        }
+
+        public void OnHitEnemy(RaycastHit2D hit)
+        {
+        }
+
+        public void OnHitWall(RaycastHit2D hit)
+        {
+        }
+
+        public bool CanSurviveEnemy(RaycastHit2D hit)
+        {
+            return false;
+        }
+
+        public bool CanSurviveWall(RaycastHit2D hit)
+        {
+            return false;
+        }
+
+        public void OnUpdate()
+        {
+            if (isReturning == false)
             {
-                isReturning = true;
+                Vector3 currentPos = bullet.transform.position;
+                float distance = Vector3.Distance(currentPos, startPosition);
+
+                if (distance >= returnDistance)
+                {
+                    isReturning = true;
+                }
+            }
+
+            if (isReturning)
+            {
+                Vector3 currentPos = bullet.transform.position;
+                Vector3 goalPoint = bullet.Owner.transform.position;
+
+                Vector3 direction = (goalPoint - currentPos);
+                direction = direction.normalized;
+
+                bullet.transform.up = direction;
+
+                if (bullet.transform.IsInRange(goalPoint, killDistance))
+                {
+                    bullet.Kill();
+                }
             }
         }
 
-        if (isReturning)
+        public IBulletModule Clone()
         {
-            Vector3 currentPos = bullet.transform.position;
-            Vector3 goalPoint = bullet.Owner.transform.position;
+            BoomerangModule clone = new BoomerangModule(data);
 
-            Vector3 direction = (goalPoint - currentPos);
-            direction = direction.normalized;
+            clone.startPosition = startPosition;
+            clone.isReturning = isReturning;
 
-            bullet.transform.up = direction;
-
-            if (bullet.transform.IsInRange(goalPoint, killDistance))
-            {
-                bullet.Kill();
-            }
+            return clone;
         }
-    }
-
-    public void OnHitEnemy(RaycastHit2D hit)
-    {
-    }
-
-    public void OnHitWall(RaycastHit2D hit)
-    {
-    }
-
-    public bool CanSurviveEnemy(RaycastHit2D hit)
-    {
-        return false;
-    }
-
-    public bool CanSurviveWall(RaycastHit2D hit)
-    {
-        return false;
     }
 }

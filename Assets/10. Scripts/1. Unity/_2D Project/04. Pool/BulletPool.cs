@@ -17,6 +17,7 @@ namespace _2DProject
         public Bullet Get()
         {
             Bullet bullet = bulletPool.Get();
+            bullet.ClearModules();
             return bullet;
         }
 

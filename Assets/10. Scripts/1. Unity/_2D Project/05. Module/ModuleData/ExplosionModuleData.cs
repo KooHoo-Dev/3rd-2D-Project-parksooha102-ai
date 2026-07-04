@@ -7,10 +7,10 @@ namespace _2DProject
     {
         [Header("Default Values")]
         [SerializeField] private const float DEFAULT_EXPLOSION_RADIUS = 5f;
-        [SerializeField] private const float DEFAULT_EXPLOSION_MULTIPLIER = 0.5f;
+        [SerializeField] private const int DEFAULT_EXPLOSION_DAMAGE = 10;
 
         [field: SerializeField] public float ExplosionRadius { get; private set; } = 5f;
-        [field: SerializeField] public float ExplosionMultiplier { get; private set; } = 0.5f;
+        [field: SerializeField] public int ExplosionDamage { get; private set; } = 10;
 
         public override IBulletModule CreateModule()
         {
@@ -20,7 +20,7 @@ namespace _2DProject
         public override void ResetToDefault()
         {
             ExplosionRadius = DEFAULT_EXPLOSION_RADIUS;
-            ExplosionMultiplier = DEFAULT_EXPLOSION_MULTIPLIER;
+            ExplosionDamage = DEFAULT_EXPLOSION_DAMAGE;
         }
     }
 }

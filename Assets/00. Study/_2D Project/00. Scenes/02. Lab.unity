@@ -2930,6 +2930,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7932737710645197976, guid: b97b0aecf03102a4286ae5527af51475, type: 3}
+      propertyPath: <Speed>k__BackingField
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7932737710645197976, guid: b97b0aecf03102a4286ae5527af51475, type: 3}
       propertyPath: <speed>k__BackingField
       value: 20
       objectReference: {fileID: 0}
