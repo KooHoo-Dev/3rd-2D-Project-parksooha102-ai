@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace _2DProject
 {
@@ -9,8 +8,9 @@ namespace _2DProject
         {
             Bullet bullet = pool.Get();
 
-            foreach (ModuleInfo info in ModuleDataManager.Instance.EquippedModules)
+            for (int i = 0; i < ModuleDataManager.Instance.EquippedModules.Count; i++)
             {
+                ModuleInfo info = ModuleDataManager.Instance.EquippedModules[i];
                 IBulletModule module = info.CreateModule();
                 if (module == null)
                 {
@@ -31,8 +31,11 @@ namespace _2DProject
             Bullet bullet = parent.BulletPool.Get();
             bullet.ClearModules();
 
-            foreach (IBulletModule module in parent.Modules)
+            for (int i = 0; i < parent.Modules.Count; i++)
+            {
+                IBulletModule module = parent.Modules[i];
                 bullet.AddModule(module.Clone());
+            }
 
             bullet.Initialize(position, direction, damage);
             return bullet;

@@ -60,7 +60,7 @@ namespace _2DProject
 
         private void ProcessExplode()
         {
-            Vector3 center = bullet.transform.position;
+            Vector3 center = bullet.transform.position - bullet.transform.up * 0.05f;
             Collider2D[] targets = Physics2D.OverlapCircleAll(center, explosionRadius);
 
             ExplosionEffect explosionEffect = explosionPool.Get();
@@ -71,8 +71,9 @@ namespace _2DProject
                 explosionEffect.Set(center);
             }
 
-            foreach (Collider2D target in targets)
+            for (int i = 0; i < targets.Length; i++)
             {
+                Collider2D target = targets[i];
                 Vector2 direction = (target.transform.position - center).normalized;
                 float distance = Vector2.Distance(center, target.transform.position);
 

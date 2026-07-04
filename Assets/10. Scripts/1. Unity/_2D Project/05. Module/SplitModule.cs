@@ -7,7 +7,7 @@ namespace _2DProject
         private Bullet bullet;
 
         private SplitModuleData data;
-        private int maxGenaration = 3;
+        private int maxGeneration = 3;
         private int splitAmount = 3;
         private float splitAngle = 45.0f;
         private float multiplier = 0.5f;
@@ -18,7 +18,7 @@ namespace _2DProject
         public SplitModule(SplitModuleData data)
         {
             this.data = data;
-            maxGenaration = data.MaxGeneration;
+            maxGeneration = data.MaxGeneration;
             splitAmount = data.SplitAmount;
             splitAngle = data.SplitAngle;
             multiplier = data.Multiplier;
@@ -71,37 +71,28 @@ namespace _2DProject
 
         private void ProcessSplit(RaycastHit2D hit)
         {
-            GameObject hitObject = hit.collider.gameObject;
-            if (hitObject == null) return;
+            if (hit.collider == excludedTarget)
+                return;
 
-            bool isExcluded = hit.collider == excludedTarget;
-            excludedTarget = null; // 한 번 쓰고 즉시 해제 → 이후엔 도탄으로 다시 만나도 정상적인 새 충돌로 처리
+            if (currentGeneration >= maxGeneration)
+                return;
 
-            if (isExcluded) return;
+            excludedTarget = hit.collider;
+            currentGeneration++;
 
-            if (currentGeneration < maxGenaration)
+            float startAngle = -((splitAmount - 1) * splitAngle) * 0.5f;
+
+            for (int i = 0; i < splitAmount; i++)
             {
-                currentGeneration++;
+                float angleOffset = startAngle + (i * splitAngle);
+                Quaternion rotation = Quaternion.Euler(0, 0, angleOffset);
+                Vector3 newDirection = rotation * bullet.transform.up;
+                int newDamage = Mathf.RoundToInt(bullet.Damage * multiplier);
 
-                float startAngle = -((splitAmount - 1) * splitAngle) * 0.5f;
-                for (int i = 0; i < splitAmount; i++)
-                {
-                    float angleOffset = startAngle + (i * splitAngle);
-                    Quaternion rotation = Quaternion.Euler(0, 0, angleOffset);
-                    Vector3 newDirection = rotation * bullet.transform.up;
-                    int newDamage = Mathf.RoundToInt(bullet.Damage * multiplier);
-
-                    Bullet subBullet = BulletFactory.CreateFromParent(bullet, bullet.transform.position, newDirection, newDamage);
-
-                    foreach (var m in subBullet.Modules)
-                    {
-                        if (m is SplitModule splitModule)
-                            splitModule.excludedTarget = hit.collider;
-                    }
-                }
-
-                bullet.Kill();
+                Bullet subBullet = BulletFactory.CreateFromParent(bullet, bullet.transform.position, newDirection, newDamage);
             }
+
+            bullet.Kill();
         }
 
     }

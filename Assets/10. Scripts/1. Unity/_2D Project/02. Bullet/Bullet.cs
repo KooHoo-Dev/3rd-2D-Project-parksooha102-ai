@@ -20,13 +20,17 @@ namespace _2DProject
         public IReadOnlyList<IBulletModule> Modules => modules;
 
         private readonly List<IBulletModule> modules = new List<IBulletModule>();
-        private readonly Dictionary<Collider2D, float> targetIgnoreTimers = new Dictionary<Collider2D, float>();
         private HashSet<Collider2D> hitSet = new HashSet<Collider2D>();
-
         private bool isInitialized;
         private float bulletAliveTime;
         private const float MAX_ALIVE_TIME = 5f;
-        private const float HIT_COOLDOWN = 0.2f;
+
+        private enum HitType
+        {
+            None,
+            Enemy,
+            Wall
+        }
 
         private void FixedUpdate()
         {
@@ -50,7 +54,7 @@ namespace _2DProject
             Damage = damage;
 
             bulletAliveTime = 0f;
-            targetIgnoreTimers.Clear();
+            hitSet.Clear();
 
             for (int i = 0; i < modules.Count; i++)
             {
@@ -65,97 +69,105 @@ namespace _2DProject
         {
             float moveDistance = Speed * Time.fixedDeltaTime;
             RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.up, moveDistance);
+            HitType hitType = GetHitType(hit.collider);
 
-            if (hit.collider != null && hit.collider.CompareTag(AllyTag) == false)
+            if (hitType == HitType.None)
             {
-                transform.position = hit.point;
-                ProcessHit(hit);
+                hitSet.Clear();
+                transform.position += transform.up * moveDistance;
 
-                if (gameObject.activeSelf == false)
-                    return;
-
-                float remaining = moveDistance - hit.distance;
-
-                if (remaining > 0f)
-                    transform.position += transform.up * remaining;
                 return;
             }
 
-            transform.position += transform.up * moveDistance;
+            transform.position = hit.point;
+            ProcessHit(hit, hitType);
+
+            float remaining = moveDistance - hit.distance;
+
+            if (remaining > 0f)
+                transform.position += transform.up * remaining;
+
+            return;
         }
 
-        private void ProcessHit(RaycastHit2D hit)
+        private HitType GetHitType(Collider2D collider)
         {
-            GameObject target = hit.collider.gameObject;
+            if (collider == null)
+                return HitType.None;
 
-            bool isEnemy = target.CompareTag(OpponentTag);
-            bool isWall = ((1 << target.layer) & WallLayer.value) != 0;
+            if (collider.CompareTag(OpponentTag))
+                return HitType.Enemy;
 
-            // 대상이 적도 아니고 벽도 아니면 처리 안 함
-            if (!isEnemy && !isWall) return;
+            if (WallLayer.Contains(collider.gameObject.layer))
+                return HitType.Wall;
 
-            if (isEnemy && !CanHit(hit.collider)) return;
+            return HitType.None;
+        }
 
-            // 2. 모듈들에게 생존 여부와 로직 수행을 위임
+        private void ProcessHit(RaycastHit2D hit, HitType hitType)
+        {
             bool canSurvive = false;
 
-            if (isEnemy)
+            switch (hitType)
             {
-                // 적 타격 로직 수행
-                ExecuteEnemyHitLogic(hit);
+                case HitType.Enemy:
 
-                foreach (var module in modules)
-                {
-                    // 관통 모듈은 여기서 true를 반환하여 canSurvive를 true로 만들 것임
-                    if (module.CanSurviveEnemy(hit)) canSurvive = true;
-                }
-            }
-            else if (isWall)
-            {
-                foreach (var module in modules)
-                {
-                    module.OnHitWall(hit);
-                    if (module.CanSurviveWall(hit)) canSurvive = true;
-                }
+                    if (TryRegisterHit(hit.collider) == false)
+                        return;
+
+                    for(int i = 0; i < modules.Count; i++)
+                    {
+                        modules[i].OnHitEnemy(hit);
+
+                        if (!gameObject.activeSelf)
+                            return;
+
+                        if (modules[i].CanSurviveEnemy(hit))
+                            canSurvive = true;
+                    }
+
+                    ApplyDamageTo(hit);
+
+                    break;
+
+                case HitType.Wall:
+
+                    for(int i = 0; i < modules.Count; i++)
+                    {
+                        modules[i].OnHitWall(hit);
+
+                        if (!gameObject.activeSelf)
+                            return;
+
+                        if (modules[i].CanSurviveWall(hit))
+                            canSurvive = true;
+                    }
+                    break;
             }
 
-            // 3. 모듈 중 단 하나라도 생존을 원하면 Kill 하지 않음
-            if (!canSurvive)
-            {
+            if (canSurvive == false)
                 Kill();
-            }
         }
 
-        private void ExecuteEnemyHitLogic(RaycastHit2D hit)
+        private void ApplyDamageTo(RaycastHit2D hit)
         {
-            // 모듈 로직 수행
-            foreach (var module in modules)
-            {
-                module.OnHitEnemy(hit);
-            }
-
-            // 데미지 계산 및 전달
             HurtBox hurtBox = CombatSystem.Instance.GetHurtBoxOrNull(hit.collider);
+
             if (hurtBox != null)
             {
-                CombatEvent @event = new CombatEvent
-                {
-                    EventType = CombatEventType.DamageEvent,
-                    Amount = Damage,
-                    Position = hit.collider.ClosestPoint(transform.position)
-                };
+                CombatEvent @event;
+
+                @event.EventType = CombatEventType.DamageEvent;
+                @event.Amount = Damage;
+                @event.Position = hit.collider.ClosestPoint(transform.position);
+
                 CombatSystem.Instance.To(Owner, hurtBox.Owner, @event);
             }
         }
 
-        private bool CanHit(Collider2D collider)
+        private bool TryRegisterHit(Collider2D collider)
         {
-            // 이미 이번 통과(Pass) 과정에서 맞춘 적이라면 무시
-            if (hitSet.Contains(collider)) return false;
-
-            // 처음 맞춘 적이라면 기록에 추가
-            hitSet.Add(collider);
-            return true;
+            return hitSet.Add(collider);
         }
 
         public void Kill()
@@ -166,7 +178,7 @@ namespace _2DProject
 
         public void AddModule(IBulletModule module)
         {
-            if (!modules.Contains(module))
+            if (modules.Contains(module) == false)
             {
                 modules.Add(module);
             }
@@ -176,5 +188,28 @@ namespace _2DProject
         {
             modules.Clear();
         }
+
+        public void AddHitSet(Collider2D collider)
+        {
+            hitSet.Add(collider);
+        }
+
+        private static int activeBulletCount;
+
+        private void OnEnable()
+        {
+            activeBulletCount++;
+        }
+
+        private void OnDisable()
+        {
+            activeBulletCount--;
+        }
+
+        private void Update()
+        {
+                Debug.LogWarning(activeBulletCount);
+        }
+
     }
 }

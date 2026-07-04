@@ -72,7 +72,6 @@ namespace _2DProject
 
             currentRicochetCount--;
             isRicocheted = true;
-            Debug.Log($"Ricochet! Remaining ricochets: {currentRicochetCount}");
 
             Vector3 reflected = Vector3.Reflect(bullet.transform.up, hit.normal);
             reflected = reflected.normalized;
