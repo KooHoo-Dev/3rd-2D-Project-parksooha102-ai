@@ -14,7 +14,7 @@ namespace _2DProject
             explosionPool = new ComponentPool<ExplosionEffect>(explosionEffect, transform);
         }
 
-        public ExplosionEffect Get()
+        static public ExplosionEffect Get()
         {
             ExplosionEffect explosion = explosionPool.Get();
             return explosion;

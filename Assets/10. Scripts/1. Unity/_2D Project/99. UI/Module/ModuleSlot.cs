@@ -1,10 +1,11 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 
 namespace _2DProject
 {
-    public class ModuleSlot : MonoBehaviour
+    public class ModuleSlot : MonoBehaviour, IPointerClickHandler
     {
         [field: SerializeField] public Image Background { get; private set; }
         [field: SerializeField] public Image Content { get; private set; }
@@ -14,8 +15,11 @@ namespace _2DProject
         private ModuleInfo module;
 
         public bool IsEmpty => (module == null);
-        
+
         public ModuleInfo Icon => module;
+
+        // 워크샵에서 이 슬롯이 클릭됐을 때 알림 (드래그와는 별개 이벤트)
+        public event System.Action<ModuleSlot> OnSlotClicked;
 
         private void Start()
         {
@@ -57,5 +61,10 @@ namespace _2DProject
             rectTransform.anchoredPosition = inputPosition;
         }
 
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (IsEmpty) return;
+            OnSlotClicked?.Invoke(this);
+        }
     }
 }

@@ -29,7 +29,6 @@ namespace _2DProject
         public static Bullet CreateFromParent(Bullet parent, Vector3 position, Vector3 direction, int damage)
         {
             Bullet bullet = parent.BulletPool.Get();
-            bullet.ClearModules();
 
             for (int i = 0; i < parent.Modules.Count; i++)
             {

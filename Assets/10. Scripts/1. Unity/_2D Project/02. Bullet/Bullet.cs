@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 namespace _2DProject
 {
@@ -115,7 +114,7 @@ namespace _2DProject
                     if (TryRegisterHit(hit.collider) == false)
                         return;
 
-                    for(int i = 0; i < modules.Count; i++)
+                    for (int i = 0; i < modules.Count; i++)
                     {
                         modules[i].OnHitEnemy(hit);
 
@@ -132,7 +131,7 @@ namespace _2DProject
 
                 case HitType.Wall:
 
-                    for(int i = 0; i < modules.Count; i++)
+                    for (int i = 0; i < modules.Count; i++)
                     {
                         modules[i].OnHitWall(hit);
 
@@ -192,23 +191,6 @@ namespace _2DProject
         public void AddHitSet(Collider2D collider)
         {
             hitSet.Add(collider);
-        }
-
-        private static int activeBulletCount;
-
-        private void OnEnable()
-        {
-            activeBulletCount++;
-        }
-
-        private void OnDisable()
-        {
-            activeBulletCount--;
-        }
-
-        private void Update()
-        {
-                Debug.LogWarning(activeBulletCount);
         }
 
     }

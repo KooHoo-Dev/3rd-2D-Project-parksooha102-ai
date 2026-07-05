@@ -10,8 +10,6 @@ namespace _2DProject
         private float explosionRadius = 5f;
         private int explosionDamage = 10;
 
-        private ExplosionPool explosionPool = new ExplosionPool();
-
         public ExplosionModule(ExplosionModuleData data)
         {
             this.data = data;
@@ -30,12 +28,12 @@ namespace _2DProject
 
         public void OnHitEnemy(RaycastHit2D hit)
         {
-            ProcessExplode();
+            ProcessExplode(hit);
         }
 
         public void OnHitWall(RaycastHit2D hit)
         {
-            ProcessExplode();
+            ProcessExplode(hit);
         }
 
         public bool CanSurviveEnemy(RaycastHit2D hit)
@@ -58,12 +56,13 @@ namespace _2DProject
             return clone;
         }
 
-        private void ProcessExplode()
+        private void ProcessExplode(RaycastHit2D hit)
         {
-            Vector3 center = bullet.transform.position - bullet.transform.up * 0.05f;
+            Vector3 impactBackDir = hit.normal;
+            Vector3 center = bullet.transform.position + impactBackDir * 0.05f;
             Collider2D[] targets = Physics2D.OverlapCircleAll(center, explosionRadius);
 
-            ExplosionEffect explosionEffect = explosionPool.Get();
+            ExplosionEffect explosionEffect = ExplosionPool.Get();
 
             if (explosionEffect != null)
             {
@@ -80,13 +79,14 @@ namespace _2DProject
                 bool blocked = Physics2D.Linecast(center, target.transform.position, bullet.WallLayer);
 
                 if (blocked)
+
                     continue;
 
                 HurtBox hurtBox = CombatSystem.Instance.GetHurtBoxOrNull(target);
-                
+
                 if (hurtBox == null)
                 {
-                    Debug.LogWarning("HurtBox not found for collider: " + target.name);
+                    Debug.LogWarning($"HurtBox not found for collider: {target.name}");
                     continue;
                 }
 
@@ -101,6 +101,5 @@ namespace _2DProject
                 CombatSystem.Instance.To(sender, receiver, @event);
             }
         }
-
     }
 }
