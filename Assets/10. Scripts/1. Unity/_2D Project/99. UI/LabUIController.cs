@@ -5,7 +5,7 @@ using Jay;
 
 namespace _2DProject
 {
-    public class UIController : SingletonBase<UIController>
+    public class LabUIController : SingletonBase<LabUIController>
     {
         public enum PlacementMode
         {

@@ -39,7 +39,7 @@ namespace _2DProject
             UpdateDamageText();
         }
 
-        protected virtual void OnDestory()
+        protected virtual void OnDestroy()
         {
             if (instanceMaterial != null) Destroy(instanceMaterial);
         }

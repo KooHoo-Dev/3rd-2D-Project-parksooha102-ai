@@ -5,14 +5,14 @@ namespace _2DProject
     public class PenetrateModule : IBulletModule
     {
         private PenetrateModuleData data;
-        private int maxPenetrateCount = 3;
+        private int maxPenetrateLimit = 3;
 
         private int currentPenetrateCount;
 
         public PenetrateModule(PenetrateModuleData data)
         {
             this.data = data;
-            maxPenetrateCount = data.MaxPenetrateCount;
+            maxPenetrateLimit = data.MaxPenetrateLimit;
         }
 
         public void Bind(Bullet bullet)
@@ -21,7 +21,7 @@ namespace _2DProject
 
         public void ResetState()
         {
-            currentPenetrateCount = maxPenetrateCount;
+            currentPenetrateCount = maxPenetrateLimit;
         }
 
         public void OnHitEnemy(RaycastHit2D hit)
@@ -38,7 +38,6 @@ namespace _2DProject
                 return false;
 
             currentPenetrateCount--;
-            Debug.Log($"관통! {currentPenetrateCount} 남음");
             return true;
         }
 
