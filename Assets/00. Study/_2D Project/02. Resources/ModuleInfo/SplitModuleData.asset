@@ -16,7 +16,8 @@ MonoBehaviour:
   Name: ModuleE
   Description: Split
   Icon: {fileID: -6949385356650754131, guid: 2c69e3ea94f9ad44582bd09521d1caca, type: 3}
-  maxGenaration: 3
-  splitAmount: 3
-  splitAngle: 45
-  multiplier: 0.5
+  IsFixed: 0
+  <MaxGeneration>k__BackingField: 3
+  <SplitAmount>k__BackingField: 3
+  <SplitAngle>k__BackingField: 45
+  <Multiplier>k__BackingField: 0.5

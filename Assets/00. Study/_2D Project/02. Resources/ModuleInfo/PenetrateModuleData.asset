@@ -16,4 +16,5 @@ MonoBehaviour:
   Name: ModuleD
   Description: Penetrate
   Icon: {fileID: -1793167431768321461, guid: 2c69e3ea94f9ad44582bd09521d1caca, type: 3}
-  maxPenetrateCount: 3
+  IsFixed: 0
+  <MaxPenetrateLimit>k__BackingField: 3

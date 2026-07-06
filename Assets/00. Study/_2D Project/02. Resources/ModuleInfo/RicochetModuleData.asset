@@ -16,4 +16,5 @@ MonoBehaviour:
   Name: ModuleA
   Description: Ricochet
   Icon: {fileID: -9115938624207856695, guid: 2c69e3ea94f9ad44582bd09521d1caca, type: 3}
-  MaxRicochetCount: 3
+  IsFixed: 0
+  <MaxRicochetCount>k__BackingField: 3

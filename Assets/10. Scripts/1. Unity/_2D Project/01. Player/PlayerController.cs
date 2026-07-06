@@ -1,6 +1,6 @@
 ﻿using Study.Utilities;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.InputSystem;
 
 namespace _2DProject
 {
@@ -22,7 +22,9 @@ namespace _2DProject
         {
             UpdatePosition();
             UpdateShotInput();
-            if (SimpleInput.GetKeyDown(UnityEngine.InputSystem.Key.V))
+            UpdateCursor();
+
+            if (SimpleInput.GetKeyDown(Key.V))
             {
                 isOnFire = !isOnFire;
             }
@@ -43,19 +45,25 @@ namespace _2DProject
 
         private void UpdateShotInput()
         {
+            if (SimpleInput.GetKey(Key.Tab))
+                return;
+
             if (SimpleInput.GetMouseButtonDown(0))
             {
-                Debug.Log("fire");
-
-                Bullet bullet = BulletFactory.Create(bulletPool, Muzzle.position, transform.up, 50);
+                Bullet bullet = BulletFactory.Create(bulletPool, Muzzle.position, transform.up);
             }
 
             if (SimpleInput.GetMouseButton(0) && isOnFire)
             {
-                Debug.Log("fireing");
-
-                Bullet bullet = BulletFactory.Create(bulletPool, Muzzle.position, transform.up, 50);
+                Bullet bullet = BulletFactory.Create(bulletPool, Muzzle.position, transform.up);
             }
+        }
+
+        private void UpdateCursor()
+        {
+            bool isBuildMode = SimpleInput.GetKey(Key.Tab);
+
+            Cursor.visible = isBuildMode;
         }
 
     }

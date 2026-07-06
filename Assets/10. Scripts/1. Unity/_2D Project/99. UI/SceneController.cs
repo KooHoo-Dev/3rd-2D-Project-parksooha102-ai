@@ -9,7 +9,7 @@ namespace _2DProject
         protected override void OnInitialize()
         {
             base.OnInitialize();
-            var mainCamera = Camera.main;
+            Camera mainCamera = Camera.main;
         }
 
         public enum GameScene
@@ -21,7 +21,6 @@ namespace _2DProject
 
         public void ChangeScene(int sceneIndex)
         {
-            // 비효율적이지만 빠르게 버튼을 이용하기위해 함수를 제작함
             ChangeScene((GameScene)sceneIndex);
         }
 
@@ -32,7 +31,6 @@ namespace _2DProject
 
         public void QuitGame()
         {
-            UnityEditor.EditorApplication.isPlaying = false;
             Application.Quit();
         }
 

@@ -15,7 +15,6 @@ namespace _2DProject
         private ModuleSlot startSlot;
         private ModuleSlot endSlot;
 
-
         private void Start()
         {
             raycaster = GetComponent<GraphicRaycaster>();
@@ -44,6 +43,12 @@ namespace _2DProject
             startSlot = GetSlotOrNull(eventData);
             if (startSlot == null) return;
             if (startSlot.IsEmpty) return;
+
+            if (startSlot.Icon.IsFixed)
+            {
+                startSlot = null;
+                return;
+            }
 
             CursorSlot.SetItem(startSlot.Icon);
         }

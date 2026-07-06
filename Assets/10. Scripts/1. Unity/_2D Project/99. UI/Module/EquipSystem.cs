@@ -22,8 +22,6 @@ namespace _2DProject
             public ModuleInfo Item;
         }
 
-        // 원래는 묶어서(클래스화 해서) 쓰는것이 좋습니다
-        // ex) TradePopupView
         [Header("PopUp Ref")]
         public GameObject Root;
         public TMP_Text ContentText;
@@ -44,7 +42,6 @@ namespace _2DProject
         {
             if (info.Item == null)
             {
-                Debug.LogError("선택한 모듈이 유효하지 않습니다.");
                 yield break;
             }
 

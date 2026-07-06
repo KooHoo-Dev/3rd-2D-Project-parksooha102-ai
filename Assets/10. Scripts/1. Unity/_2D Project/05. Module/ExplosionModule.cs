@@ -86,7 +86,6 @@ namespace _2DProject
 
                 if (hurtBox == null)
                 {
-                    Debug.LogWarning($"HurtBox not found for collider: {target.name}");
                     continue;
                 }
 

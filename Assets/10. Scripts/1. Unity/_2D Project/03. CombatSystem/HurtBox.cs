@@ -11,12 +11,8 @@ namespace _2DProject
         private void Awake()
         {
             Owner = GetComponent<CombatEntity>();
-            if (Owner == null) Owner = GetComponentInParent<CombatEntity>();
-
-            if (Owner == null)
-            {
-                Debug.LogError($"{name} : CombatEntity를 찾지 못했습니다.");
-            }
+            if (Owner == null) 
+                Owner = GetComponentInParent<CombatEntity>();
 
             col2D = GetComponent<Collider2D>();
         }

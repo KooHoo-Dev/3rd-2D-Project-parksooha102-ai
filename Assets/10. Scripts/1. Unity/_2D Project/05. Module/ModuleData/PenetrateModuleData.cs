@@ -13,7 +13,6 @@ namespace _2DProject
 
         [field: SerializeField] public int MaxPenetrateLimit { get; private set; } = 3;
 
-        // 외부(UI)에서는 이 메서드를 통해서만 값을 바꿀 수 있음 (범위 검증 포함)
         public void SetMaxPenetrateCount(int value)
         {
             MaxPenetrateLimit = Mathf.Clamp(value, MIN_PENETRATE_LIMIT, MAX_PENETRATE_LIMIT);

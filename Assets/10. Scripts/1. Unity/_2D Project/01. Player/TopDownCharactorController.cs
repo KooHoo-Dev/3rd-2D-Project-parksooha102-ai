@@ -20,7 +20,6 @@ namespace _2DProject
         private void Awake()
         {
             rBody = GetComponent<Rigidbody2D>();
-            // rBody.bodyType = RigidbodyType2D.Kinematic;
 
             col = GetComponent<CircleCollider2D>();
         }

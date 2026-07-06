@@ -1,42 +1,101 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using Study.Utilities;
+using System.Collections.Generic;
 using TMPro;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace _2DProject
 {
     public class WorkShopInspectorController : MonoBehaviour
     {
         [Header("Inspector Panel Ref")]
-        [SerializeField] private Transform fieldPanelParent;      // 필드들이 생성될 부모 (Inspector 영역)
-        [SerializeField] private FieldRow fieldRowPrefab;       // 필드 한 줄 (라벨+슬라이더) 프리팹
-        [SerializeField] private TMP_Text moduleNameText;         // 인스펙터 상단 모듈 이름 표시
+        [SerializeField] private Transform fieldPanelParent;
+        [SerializeField] private FieldRow fieldRowPrefab;
+        [SerializeField] private TMP_Text moduleNameText;
+
+        private GraphicRaycaster raycaster;
 
         private ModuleInfo currentModule;
+        private Canvas canvas;
 
         private void Start()
         {
-            // 씬의 모든 슬롯에 클릭 이벤트 구독
-            ModuleSlot[] allSlots = FindObjectsByType<ModuleSlot>(FindObjectsSortMode.None);
-
-            foreach (ModuleSlot slot in allSlots)
-            {
-                slot.OnSlotClicked += HandleSlotClicked;
-            }
-
             ClearPanel();
+            canvas = GetComponent<Canvas>();
+            raycaster = GetComponent<GraphicRaycaster>();
+        }
+
+        private void Update()
+        {
+            if (IsValidScene() == false)
+            {
+                canvas.enabled = false;
+                return;
+            }
+            else
+            {
+                canvas.enabled = true;
+            }
+            CheckMouseClick();
+            CheckCurrentModuleStillEquipped();
+        }
+
+        private bool IsValidScene()
+        {
+            return SceneManager.GetActiveScene().buildIndex == (int)SceneController.GameScene.WorkShop;
+        }
+
+        private void CheckMouseClick()
+        {
+            if (SimpleInput.GetMouseButtonDown(0) == false)
+                return;
+
+            PointerEventData pointerData = new PointerEventData(EventSystem.current);
+            pointerData.position = SimpleInput.GetMousePosition();
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            raycaster.Raycast(pointerData, results);
+
+            foreach (RaycastResult result in results)
+            {
+                if (result.gameObject.TryGetComponent(out ModuleSlot slot))
+                {
+                    HandleSlotClicked(slot);
+                    break;
+                }
+            }
         }
 
         private void HandleSlotClicked(ModuleSlot slot)
         {
+            if (slot.IsEmpty)
+                return;
+
             ModuleInventory inventory = ModuleInventorySystem.Instance.GetInventoryOrNull(slot);
 
-            if (inventory == null) return;
-
-            // Build List(장착 슬롯)가 아니면 무시
-            if (inventory.Type != InventoryType.Player) return;
+            if (inventory == null)
+                return;
+            if (inventory.Type != InventoryType.Player)
+                return;
 
             ShowModule(slot.Icon);
+        }
+
+        private void CheckCurrentModuleStillEquipped()
+        {
+            if (currentModule == null) return;
+
+            bool stillEquipped = ModuleDataManager.Instance.EquippedModules.Contains(currentModule);
+
+            if (stillEquipped == false)
+            {
+                currentModule = null;
+                ClearPanel();
+                moduleNameText.text = "Inspector";
+            }
         }
 
         private void ShowModule(ModuleInfo module)

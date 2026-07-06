@@ -16,5 +16,6 @@ MonoBehaviour:
   Name: ModuleF
   Description: Boonerang
   Icon: {fileID: -4831997116911646024, guid: 18b3952c7821ce24282f4c979ec4c767, type: 3}
-  returnDistance: 10
-  killDistance: 0.5
+  IsFixed: 0
+  <ReturnDistance>k__BackingField: 10
+  <KillDistance>k__BackingField: 0.5

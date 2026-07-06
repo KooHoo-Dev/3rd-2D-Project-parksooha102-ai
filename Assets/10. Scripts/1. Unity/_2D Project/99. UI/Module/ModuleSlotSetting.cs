@@ -3,12 +3,12 @@ namespace _2DProject
 {
     public class ModuleSlotSetting : MonoBehaviour
     {
-        public ModuleSlot Slot;
+        private ModuleSlot Slot;
         public ModuleInfo StartModule;
 
         private void Start()
         {
-            Slot.SetItem(null);
+            Slot = GetComponent<ModuleSlot>();
             Slot.SetItem(StartModule);
         }
     }

@@ -16,6 +16,7 @@ MonoBehaviour:
   Name: ModuleB
   Description: Homing
   Icon: {fileID: -8198574232401945530, guid: 2c69e3ea94f9ad44582bd09521d1caca, type: 3}
-  trackingRange: 10
-  trackingAngle: 45
-  trackingSpeed: 4
+  IsFixed: 0
+  <TrackingRange>k__BackingField: 10
+  <TrackingAngle>k__BackingField: 45
+  <TrackingSpeed>k__BackingField: 4

@@ -1,11 +1,10 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 
 namespace _2DProject
 {
-    public class ModuleSlot : MonoBehaviour, IPointerClickHandler
+    public class ModuleSlot : MonoBehaviour
     {
         [field: SerializeField] public Image Background { get; private set; }
         [field: SerializeField] public Image Content { get; private set; }
@@ -18,20 +17,12 @@ namespace _2DProject
 
         public ModuleInfo Icon => module;
 
-        // 워크샵에서 이 슬롯이 클릭됐을 때 알림 (드래그와는 별개 이벤트)
-        public event System.Action<ModuleSlot> OnSlotClicked;
-
-        private void Start()
+        private void Awake()
         {
-            SetItem(null);
-
             rectTransform = GetComponent<RectTransform>();
+            SetItem(null);
         }
 
-        /// <summary>
-        /// Null을 허용하는 함수입니다. Null 전달시 슬롯이 비워집니다.
-        /// </summary>
-        /// <param name="inputItem"></param>
         public void SetItem(ModuleInfo inputItem)
         {
             module = inputItem;
@@ -60,11 +51,6 @@ namespace _2DProject
         {
             rectTransform.anchoredPosition = inputPosition;
         }
-
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            if (IsEmpty) return;
-            OnSlotClicked?.Invoke(this);
-        }
+        
     }
 }

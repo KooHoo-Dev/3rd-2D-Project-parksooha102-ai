@@ -20,6 +20,9 @@ namespace _2DProject
         public string Description;
         public Sprite Icon;
 
+        [Header("Slot Behavior")]
+        public bool IsFixed = false;
+
         public abstract IBulletModule CreateModule();
         public abstract void ResetToDefault();
 

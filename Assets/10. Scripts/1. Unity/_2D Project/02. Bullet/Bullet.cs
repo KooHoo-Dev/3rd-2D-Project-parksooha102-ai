@@ -21,8 +21,7 @@ namespace _2DProject
         private readonly List<IBulletModule> modules = new List<IBulletModule>();
         private HashSet<Collider2D> hitSet = new HashSet<Collider2D>();
         private bool isInitialized;
-        private float bulletAliveTime;
-        private const float MAX_ALIVE_TIME = 5f;
+        private const float MAX_DISTANCE_FROM_CAMERA_SQR = 20f * 20f;
 
         private enum HitType
         {
@@ -35,9 +34,7 @@ namespace _2DProject
         {
             if (!isInitialized) return;
 
-            bulletAliveTime += Time.fixedDeltaTime;
-
-            if (bulletAliveTime >= MAX_ALIVE_TIME)
+            if (IsOutOfCameraRange())
                 Kill();
 
             for (int i = 0; i < modules.Count; i++)
@@ -46,13 +43,13 @@ namespace _2DProject
             MoveBullet();
         }
 
-        public void Initialize(Vector3 spawnPosition, Vector3 direction, int damage)
+        public void Initialize(Vector3 spawnPosition, Vector3 direction, int damage, float speed)
         {
             transform.position = spawnPosition;
             transform.up = direction;
             Damage = damage;
+            Speed = speed;
 
-            bulletAliveTime = 0f;
             hitSet.Clear();
 
             for (int i = 0; i < modules.Count; i++)
@@ -87,6 +84,18 @@ namespace _2DProject
                 transform.position += transform.up * remaining;
 
             return;
+        }
+
+        private bool IsOutOfCameraRange()
+        {
+            Camera mainCamera = Camera.main;
+
+            if (mainCamera == null)
+                return false;
+
+            float sqrDistance = (transform.position - mainCamera.transform.position).sqrMagnitude;
+
+            return sqrDistance >= MAX_DISTANCE_FROM_CAMERA_SQR;
         }
 
         private HitType GetHitType(Collider2D collider)

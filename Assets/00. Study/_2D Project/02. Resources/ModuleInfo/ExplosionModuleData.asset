@@ -16,5 +16,6 @@ MonoBehaviour:
   Name: ModuleC
   Description: Explosion
   Icon: {fileID: -5321099399631716182, guid: 2c69e3ea94f9ad44582bd09521d1caca, type: 3}
-  explosionRadius: 5
-  explosionMultiplier: 0.5
+  IsFixed: 0
+  <ExplosionRadius>k__BackingField: 5
+  <ExplosionDamage>k__BackingField: 10

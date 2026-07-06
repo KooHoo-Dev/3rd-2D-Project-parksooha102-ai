@@ -44,10 +44,6 @@ namespace _2DProject
             if (instanceMaterial != null) Destroy(instanceMaterial);
         }
 
-        public void FixedUpdate()
-        {
-        }
-
         public override void TakeDamage(int damage)
         {
             if (accumulatedDamage == 0) firstHitTime = Time.time;
@@ -96,7 +92,6 @@ namespace _2DProject
             DPS = 0;
             resetTimerCoroutine = null;
             UpdateDamageText();
-            Debug.Log("누적 데미지 초기화됨");
         }
 
         private void UpdateDamageText()

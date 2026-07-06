@@ -44,11 +44,6 @@ namespace _2DProject
             ModuleInventorySystem.Instance.Register(this);
         }
 
-        /// <summary>
-        /// 매개변수의 slot이 inventory 안에 존재하는지 검사
-        /// </summary>
-        /// <param name="slot"></param>
-        /// <returns></returns>
         public bool IsIn(ModuleSlot slot)
         {
             if (slot == null) return false;
