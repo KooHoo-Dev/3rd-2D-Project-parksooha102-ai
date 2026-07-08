@@ -76,8 +76,6 @@ namespace _2DProject
             Vector3 reflected = Vector3.Reflect(bullet.transform.up, hit.normal);
             reflected = reflected.normalized;
 
-            bullet.transform.position = hit.point + hit.normal * 0.01f;
-
             bullet.transform.up = reflected;
         }
 

@@ -75,7 +75,7 @@ namespace _2DProject
                 return;
             }
 
-            transform.position = hit.point;
+            transform.position = hit.point + hit.normal * 0.01f;
             ProcessHit(hit, hitType);
 
             float remaining = moveDistance - hit.distance;
@@ -175,7 +175,10 @@ namespace _2DProject
 
         private bool TryRegisterHit(Collider2D collider)
         {
-            return hitSet.Add(collider);
+            Debug.Log($"TryRegisterHit: {collider.name}, hitSet.Count: {hitSet.Count}");
+            bool isNewHit = hitSet.Add(collider);
+            Debug.Log($" isNewHit: {isNewHit}");    
+            return isNewHit;
         }
 
         public void Kill()
@@ -186,10 +189,13 @@ namespace _2DProject
 
         public void AddModule(IBulletModule module)
         {
-            if (modules.Contains(module) == false)
-            {
+            if (modules.Contains(module))
+                return;
+
+            if (module is SplitModule)
+                modules.Insert(0, module);
+            else
                 modules.Add(module);
-            }
         }
 
         public void ClearModules()

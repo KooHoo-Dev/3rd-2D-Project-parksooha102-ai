@@ -90,6 +90,7 @@ namespace _2DProject
                 int newDamage = Mathf.RoundToInt(bullet.Damage * multiplier);
 
                 Bullet subBullet = BulletFactory.CreateFromParent(bullet, bullet.transform.position, newDirection, newDamage);
+                //subBullet.AddHitSet(hit.collider);
             }
 
             bullet.Kill();
